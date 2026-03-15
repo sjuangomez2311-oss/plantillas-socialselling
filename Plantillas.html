@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Social Selling - MUNDO</title>
+    
+    <!-- Carga de Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            50: '#faf5ff', 100: '#f3e8ff', 200: '#e9d5ff',
+                            300: '#d8b4fe', 400: '#c084fc', 500: '#a855f7',
+                            600: '#9333ea', 700: '#7e22ce', 800: '#6b21a8', 900: '#581c87',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Carga de Iconos (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Estilos personalizados para transiciones suaves */
+        body { transition: background-color 0.3s, color 0.3s; }
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden dark:bg-gray-900 dark:text-gray-100">
+
+    <!-- Overlay para móvil (Fondo oscuro al abrir menú) -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Navegación Lateral (Sidebar) -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-64 transform -translate-x-full lg:translate-x-0 sidebar-transition bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 flex flex-col">
+        
+        <!-- Cabecera del Sidebar -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">MUNDO</h1>
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Social Selling</p>
+            </div>
+            <button class="lg:hidden text-gray-500 dark:text-gray-300" onclick="toggleSidebar()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <!-- Contenedor de Inputs (Variables de Plantilla) -->
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
+            
+            <!-- Input de Nombre del Ejecutivo -->
+            <div>
+                <label for="agent-name-input" class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Tu Nombre (Ejecutivo)</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="agent-name-input"
+                        placeholder="Ej. Juan Pérez" 
+                        class="block w-full pl-9 pr-3 py-2 border rounded-lg leading-5 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-sm"
+                        oninput="handleVariablesChange()"
+                    >
+                </div>
+            </div>
+
+            <!-- Input de Nombre del Cliente -->
+            <div>
+                <label for="client-name-input" class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Nombre del Cliente</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="client-name-input"
+                        placeholder="Ej. María Gómez" 
+                        class="block w-full pl-9 pr-3 py-2 border rounded-lg leading-5 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-purple-50 border-purple-200 text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:border-purple-800 dark:text-white dark:placeholder-gray-400 text-sm"
+                        oninput="handleVariablesChange()"
+                    >
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Lista de Categorías -->
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul id="category-list" class="space-y-1 px-3">
+                <!-- Las categorías se insertan vía JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Botón Modo Oscuro -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <button onclick="toggleDarkMode()" class="w-full flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition-colors bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+                <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+                <span id="theme-text">Modo Oscuro</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden w-full relative">
+        
+        <!-- Cabecera Superior (Buscador) -->
+        <header class="p-4 sm:p-6 border-b shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between z-10 bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center w-full sm:w-auto">
+                <button class="mr-4 lg:hidden text-gray-600 dark:text-gray-300" onclick="toggleSidebar()">
+                    <i data-lucide="menu"></i>
+                </button>
+                <h2 id="active-category-title" class="text-xl font-bold">Todos</h2>
+            </div>
+            
+            <div class="relative w-full sm:max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </div>
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="Buscar frase, objeción, palabra clave..." 
+                    class="block w-full pl-10 pr-3 py-2 border rounded-xl leading-5 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                    oninput="handleSearch()"
+                >
+            </div>
+        </header>
+
+        <!-- Grilla de Plantillas -->
+        <div id="templates-container" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
+            <!-- Las tarjetas se insertan vía JavaScript -->
+        </div>
+    </main>
+
+    <!-- LOGICA JAVASCRIPT -->
+    <script>
+        // --- DATA: PLANTILLAS ---
+        const templates = [
+            { id: 1, category: "Saludos", icon: "message-square", title: "Inbound (El cliente escribe)", text: "¡Hola! Bienvenido al chat de ventas Mundo 🚀. Soy [Tu Nombre] y voy a ayudarte a mejorar tu conexión hoy. Cuéntame, ¿buscas un plan para tu celular o internet para tu casa?" },
+            { id: 2, category: "Saludos", icon: "message-square", title: "Outbound / Lead Web", text: "¡Hola, [Nombre del Cliente]! 👋 Vimos que nos dejaste tus datos porque te interesa la fibra de Mundo ⚡️. Soy [Tu Nombre], ¿tienes un minuto por acá para mostrarte la promoción que te podemos armar?" },
+            { id: 3, category: "Saludos", icon: "message-square", title: "Outbound / Base en Frío", text: "¡Hola! Te hablamos desde el chat de ventas Mundo. Vimos tu interés en contratar la mejor fibra óptica de Latinoamérica. ¿Con quién tengo el gusto de hablar hoy? ✨" },
+            { id: 4, category: "Tiempos de Espera", icon: "clock", title: "Validación inicial", text: "Por favor, dame un momento ⏳. Voy a validar la factibilidad en el sistema para darte la mejor opción. Te pido no desconectarte de la línea." },
+            { id: 5, category: "Tiempos de Espera", icon: "clock", title: "Retorno con información", text: "Muchas gracias por tu paciencia en la línea. ✅ Ya tengo la información en pantalla y te tengo excelentes noticias..." },
+            { id: 6, category: "Sondeo", icon: "help-circle", title: "Móvil: Dolor de Gigas", text: "¿Hoy en día te quedas corto de gigas a fin de mes o andas bien con lo que tienes?" },
+            { id: 7, category: "Sondeo", icon: "help-circle", title: "Móvil: Portabilidad", text: "¿Te gustaría mantener tu mismo número de siempre o prefieres una línea totalmente nueva?" },
+            { id: 8, category: "Sondeo", icon: "help-circle", title: "Móvil: Presupuesto", text: "Para armarte algo a medida y buscar un ahorro, ¿cuánto sueles pagar mes a mes con tu compañía actual?" },
+            { id: 9, category: "Sondeo", icon: "help-circle", title: "Hogar: Validación", text: "¿Tienes internet actualmente o estás buscando contratar uno nuevo para tu domicilio?" },
+            { id: 10, category: "Sondeo", icon: "help-circle", title: "Hogar: Dispositivos", text: "Para no quedarme corto con la velocidad, ¿cuántos dispositivos se conectan al wifi en tu casa al mismo tiempo?" },
+            { id: 11, category: "Sondeo", icon: "help-circle", title: "Hogar: Uso", text: "¿El internet lo usan más para estudiar, trabajar o exclusivamente entretenimiento?" },
+            { id: 12, category: "Sondeo", icon: "help-circle", title: "Hogar: Complementos", text: "Para dejarte el servicio completo, ¿te interesa solo Internet o le sumamos TV y Telefonía Fija?" },
+            { id: 13, category: "Cobertura", icon: "map-pin", title: "Solicitud de Dirección", text: "¡Claro que sí! Para verificar disponibilidad necesito tu dirección exacta. Indícame, por favor: Región, Comuna, Nombre de Calle o Pasaje y Número Externo. 📍" },
+            { id: 14, category: "Cobertura", icon: "map-pin", title: "Tiempos de Instalación", text: "Una vez generada la orden, la instalación queda programada entre 24 y 72 horas, según la zona. ⏳ ¡Y no pagas nada por activación! ¿Lo dejamos agendado de inmediato?" },
+            { id: 15, category: "Ofertas", icon: "zap", title: "Frase de Impacto 1 (Móvil)", text: "¿Estás pagando de más en tu compañía actual? Por solo $4.990, Mundo te entrega 50 GB + redes sin tope. Portabilidad en 1 día, sin costos. ¿Comenzamos el trámite ahora? 🚀" },
+            { id: 16, category: "Ofertas", icon: "zap", title: "Frase de Impacto 2 (General)", text: "Si ya pagas por un servicio, ¡que sea el mejor! Mundo te da más velocidad por menos precio. ¿Deseas comprobarlo?" },
+            { id: 17, category: "Ofertas", icon: "zap", title: "Oferta Fibra Hogar", text: "Te cuento más detalles: Te llevas Velocidad simétrica 800/800 Mbps, sin costo de instalación y los primeros meses con descuento. ¿Quieres que revisemos cobertura ahora mismo? 🏡" },
+            { id: 18, category: "Ofertas", icon: "zap", title: "Oferta Combo", text: "Tenemos el combo perfecto: Fibra 800 Mbps + Mundo GO por $21.990/mes los primeros 6 meses. Más velocidad, más series y la instalación es sin costo. ¿Lo dejamos listo? 🎬" },
+            { id: 19, category: "Objeciones", icon: "shield-alert", title: "Lo voy a pensar / No hay tiempo", text: "Entiendo que quieras pensarlo bien. Si gustas, puedo dejarte la oferta reservada para que no pierdas el beneficio de la instalación gratis. ¡Es sin ningún compromiso! 😉" },
+            { id: 20, category: "Objeciones", icon: "shield-alert", title: "No me interesa / Estoy bien", text: "Es genial que tengas buen servicio. Aun así, podrías acceder a descuentos especiales y mayor velocidad garantizada por 12 meses al portarte a Mundo. ¡Te ayudo a comparar opciones si quieres!" },
+            { id: 21, category: "Objeciones", icon: "shield-alert", title: "Desconfianza WhatsApp", text: "Comprendo al 100% tu preocupación 🔒. La información que nos compartes está protegida y usamos canales oficiales. Si prefieres, te envío el enlace directo de validación a tu correo electrónico." },
+            { id: 22, category: "Objeciones", icon: "shield-alert", title: "No tengo dinero ahora", text: "Te entiendo, y justamente Mundo ofrece planes muy accesibles desde $12.990. Además, la instalación es totalmente gratis y empiezas a pagar desde el próximo mes. ¿Te animas a agendarlo? 📅" },
+            { id: 23, category: "Trámites", icon: "file-text", title: "Documentos (Outbound)", text: "Para garantía de tus datos y de la contratación en curso, te invito por favor a enviarme por este medio los siguientes documentos: 1. RUT parte delantera, 2. RUT parte trasera, 3. Una selfie tuya con el carnet en la mano. 📸" },
+            { id: 24, category: "Trámites", icon: "file-text", title: "Envío de Biometría", text: "Por normativa de la SUBTEL y para proteger tus datos, te enviamos un correo con el asunto 'En Mundo Nos Preocupamos Por Tu Seguridad'. Debes realizar la validación para continuar el trámite y generar la lectura de contrato. Estoy atento si tienes alguna duda. 📩" },
+            { id: 25, category: "Trámites", icon: "file-text", title: "Error en Biometría", text: "La validación es para confirmar tu titularidad. Si te genera algún error al abrir el correo, avísame de inmediato por este chat y te ayudo a solucionarlo. ¡Quedo atento!" },
+            { id: 26, category: "Trámites", icon: "file-text", title: "Validación Exitosa", text: "¡Validación exitosa! ✅ Debemos continuar con la lectura de contrato para finalizar tu solicitud. Por favor indícame un número de contacto principal y uno secundario en caso de ser necesario." },
+            { id: 27, category: "Cierres", icon: "check-circle", title: "Despedida (Venta Exitosa)", text: "Muchas gracias por tu paciencia y por contratar con MUNDO. ¡Tu mundo tienes que vivirlo! Para el cierre de esta conversación, te invito a que califiques mi atención brindada el día de hoy. ¡Hasta pronto! ⭐⭐⭐⭐⭐" },
+            { id: 28, category: "Cierres", icon: "check-circle", title: "Despedida (Sin Venta)", text: "Fue un gusto conversar contigo. Quedo atento por si decides avanzar. No pierdes nada con preguntar, y sí puedes ganar una mejor conexión. Guarda mi número por si cambias de opinión. ¡Que tengas un excelente día! 👋" },
+            { id: 29, category: "Cierres", icon: "check-circle", title: "Postventa (Móvil)", text: "¡Buen día! Estimado [Nombre del Cliente]. Te habla [Tu Nombre], ejecutivo de ventas de Mundo. Quiero confirmar tu experiencia con la contratación del servicio. ¿Tuviste alguna novedad con la activación del Chip?" },
+            { id: 30, category: "Cierres", icon: "check-circle", title: "Postventa (Hogar)", text: "¡Buen día! Estimado [Nombre del Cliente]. Te habla [Tu Nombre], ejecutivo de ventas de Mundo. Quiero confirmar tu experiencia con la contratación del servicio. ¿Tuviste alguna novedad en la instalación de tu hogar?" }
+        ];
+
+        const categories = ["Todos", "Saludos", "Tiempos de Espera", "Sondeo", "Cobertura", "Ofertas", "Objeciones", "Trámites", "Cierres"];
+
+        // Estado de la aplicación
+        let activeCategory = "Todos";
+        let searchTerm = "";
+        let agentName = localStorage.getItem('agentName') || "";
+        let clientName = ""; // No se guarda en local para que sea fácil cambiar por chat
+        let isDarkMode = false;
+        let isSidebarOpen = false;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('agent-name-input').value = agentName;
+            renderCategories();
+            renderTemplates();
+            lucide.createIcons();
+        });
+
+        // Manejar cambio de nombres (Ejecutivo y Cliente)
+        function handleVariablesChange() {
+            // Guardar nombre de agente (persistente)
+            agentName = document.getElementById('agent-name-input').value;
+            localStorage.setItem('agentName', agentName);
+            
+            // Guardar nombre de cliente (temporal)
+            clientName = document.getElementById('client-name-input').value;
+
+            renderTemplates(); // Actualiza las plantillas en tiempo real
+        }
+
+        // Renderizar menú lateral
+        function renderCategories() {
+            const list = document.getElementById('category-list');
+            list.innerHTML = '';
+            
+            categories.forEach(cat => {
+                const isActive = cat === activeCategory;
+                const activeClass = isActive 
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-100' 
+                    : 'hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-300';
+                
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <button onclick="setCategory('${cat}')" class="w-full text-left px-4 py-3 rounded-lg font-medium transition-colors flex items-center gap-3 ${activeClass}">
+                        ${cat}
+                    </button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // Cambiar categoría
+        function setCategory(cat) {
+            activeCategory = cat;
+            document.getElementById('active-category-title').innerText = cat;
+            if(window.innerWidth < 1024) toggleSidebar(); // Cierra sidebar en móvil al hacer clic
+            renderCategories();
+            renderTemplates();
+        }
+
+        // Manejar buscador
+        function handleSearch() {
+            searchTerm = document.getElementById('search-input').value.toLowerCase();
+            renderTemplates();
+        }
+
+        // Escapar HTML para evitar problemas de seguridad y resaltar variables
+        function formatText(text) {
+            // Evita inyección HTML
+            const div = document.createElement('div');
+            div.innerText = text;
+            let safeText = div.innerHTML;
+
+            // Reemplaza los corchetes por spans coloreados
+            return safeText.replace(/(\[.*?\])/g, '<span class="font-bold px-1 rounded mx-0.5 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200">$1</span>');
+        }
+
+        // Renderizar tarjetas
+        function renderTemplates() {
+            const container = document.getElementById('templates-container');
+            container.innerHTML = '';
+
+            const filtered = templates.filter(t => {
+                const matchesSearch = t.title.toLowerCase().includes(searchTerm) || t.text.toLowerCase().includes(searchTerm);
+                const matchesCategory = activeCategory === "Todos" || t.category === activeCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-64 text-center">
+                        <i data-lucide="search" class="w-12 h-12 mb-4 text-gray-300 dark:text-gray-600"></i>
+                        <h3 class="text-lg font-medium text-gray-800 dark:text-white">No encontramos plantillas</h3>
+                        <p class="mt-1 text-gray-500 dark:text-gray-400">Intenta buscar con otras palabras o selecciona "Todos".</p>
+                    </div>
+                `;
+            } else {
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6';
+
+                filtered.forEach(t => {
+                    let displayText = t.text;
+                    
+                    // Reemplazar [Tu Nombre]
+                    if (agentName.trim() !== '') {
+                        displayText = displayText.replace(/\[Tu Nombre\]/g, agentName.trim());
+                    }
+
+                    // Reemplazar [Nombre del Cliente] y [Nombre]
+                    if (clientName.trim() !== '') {
+                        displayText = displayText.replace(/\[Nombre del Cliente\]/g, clientName.trim());
+                        displayText = displayText.replace(/\[Nombre\]/g, clientName.trim());
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'rounded-xl border shadow-sm flex flex-col overflow-hidden transition-all card-hover bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700';
+                    
+                    card.innerHTML = `
+                        <div class="p-4 border-b flex items-center gap-3 border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                            <span class="p-2 rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400">
+                                <i data-lucide="${t.icon}" class="w-5 h-5"></i>
+                            </span>
+                            <h3 class="font-semibold text-lg leading-tight text-gray-900 dark:text-white">${t.title}</h3>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="flex-1 text-sm sm:text-base leading-relaxed mb-6 whitespace-pre-wrap text-gray-600 dark:text-gray-300">${formatText(displayText)}</div>
+                            <button id="btn-${t.id}" onclick="copyText(${t.id})" class="w-full py-3 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/30">
+                                <i data-lucide="copy" class="w-5 h-5 copy-icon"></i>
+                                <span class="btn-text">Copiar Respuesta</span>
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                container.appendChild(grid);
+            }
+            
+            // Re-renderizar los íconos dinámicos
+            lucide.createIcons();
+        }
+
+        // Función de Copiado Compatible
+        function copyText(id) {
+            try {
+                // Buscar la plantilla original
+                const template = templates.find(t => t.id === id);
+                if (!template) return;
+
+                // Reemplazar los nombres antes de copiar
+                let textToCopy = template.text;
+                
+                if (agentName.trim() !== '') {
+                    textToCopy = textToCopy.replace(/\[Tu Nombre\]/g, agentName.trim());
+                }
+                
+                if (clientName.trim() !== '') {
+                    textToCopy = textToCopy.replace(/\[Nombre del Cliente\]/g, clientName.trim());
+                    textToCopy = textToCopy.replace(/\[Nombre\]/g, clientName.trim());
+                }
+
+                // Crear un textarea oculto
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                
+                textArea.focus();
+                textArea.select();
+                
+                // Ejecutar comando nativo de copia (Funciona en Google Sites y local)
+                document.execCommand('copy');
+                textArea.remove();
+
+                // Feedback Visual
+                const btn = document.getElementById(`btn-${id}`);
+                const icon = btn.querySelector('.copy-icon');
+                const span = btn.querySelector('.btn-text');
+
+                // Estilo éxito
+                btn.classList.remove('bg-purple-600', 'hover:bg-purple-700', 'shadow-purple-600/30');
+                btn.classList.add('bg-green-500', 'shadow-green-500/30');
+                
+                // Actualizar ícono de Lucide con SVG manual para animar
+                icon.outerHTML = `<svg class="w-5 h-5 copy-icon animate-bounce" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                span.innerText = "¡Copiado!";
+
+                // Restaurar después de 2 segundos
+                setTimeout(() => {
+                    btn.classList.remove('bg-green-500', 'shadow-green-500/30');
+                    btn.classList.add('bg-purple-600', 'hover:bg-purple-700', 'shadow-purple-600/30');
+                    btn.querySelector('svg').outerHTML = `<i data-lucide="copy" class="w-5 h-5 copy-icon"></i>`;
+                    btn.querySelector('.btn-text').innerText = "Copiar Respuesta";
+                    lucide.createIcons({root: btn}); // Volver a cargar el icono original
+                }, 2000);
+
+            } catch (err) {
+                console.error('Error al copiar el texto: ', err);
+            }
+        }
+
+        // Alternar modo oscuro
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').setAttribute('data-lucide', 'sun');
+                document.getElementById('theme-text').innerText = 'Modo Claro';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').setAttribute('data-lucide', 'moon');
+                document.getElementById('theme-text').innerText = 'Modo Oscuro';
+            }
+            lucide.createIcons();
+        }
+
+        // Alternar menú en móviles
+        function toggleSidebar() {
+            isSidebarOpen = !isSidebarOpen;
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
