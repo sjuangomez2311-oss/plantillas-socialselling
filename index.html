@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Operaciones - MUNDO</title>
+    <style>
+        /* === VARIABLES CSS NATIVAS === */
+        :root {
+            /* Modo Claro */
+            --bg-body: #f9fafb;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-header: #ffffff;
+            --bg-input: #f9fafb;
+            --bg-purple-light: #f3e8ff;
+            --bg-purple-main: #9333ea;
+            --bg-purple-hover: #7e22ce;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --text-purple: #7e22ce;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-btn: 0 4px 14px 0 rgba(147, 51, 234, 0.39);
+        }
+
+        .dark {
+            /* Modo Oscuro */
+            --bg-body: #111827;
+            --bg-sidebar: #1f2937;
+            --bg-card: #1f2937;
+            --bg-header: #1f2937;
+            --bg-input: #374151;
+            --bg-purple-light: #4c1d95;
+            --bg-purple-main: #9333ea;
+            --bg-purple-hover: #a855f7;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-purple: #e9d5ff;
+            --border-color: #374151;
+            --shadow-btn: 0 4px 14px 0 rgba(147, 51, 234, 0.2);
+        }
+
+        /* === ESTILOS GENERALES === */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
+        
+        /* === SIDEBAR (MENÚ LATERAL) === */
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: transform 0.3s; z-index: 30; }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border-color); }
+        .logo-text { font-size: 24px; font-weight: 900; background: linear-gradient(to right, #9333ea, #2563eb); -webkit-background-clip: text; color: transparent; margin-bottom: 4px; }
+        .logo-sub { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        
+        .inputs-container { padding: 16px; border-bottom: 1px solid var(--border-color); }
+        .input-group { margin-bottom: 16px; }
+        .input-group:last-child { margin-bottom: 0; }
+        .input-label { display: block; font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+        .custom-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-input); color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .custom-input:focus { border-color: var(--bg-purple-main); }
+        
+        .category-list { flex: 1; overflow-y: auto; padding: 16px 12px; list-style: none; }
+        .cat-btn { width: 100%; text-align: left; padding: 12px 16px; border: none; background: transparent; color: var(--text-muted); font-size: 15px; font-weight: 500; border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+        .cat-btn:hover { background-color: var(--bg-input); }
+        .cat-btn.active { background-color: var(--bg-purple-light); color: var(--text-purple); font-weight: 600; }
+        
+        .theme-toggle { padding: 16px; border-top: 1px solid var(--border-color); }
+        .theme-btn { width: 100%; padding: 10px; border: none; background-color: var(--bg-input); color: var(--text-main); border-radius: 8px; cursor: pointer; font-weight: 500; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .theme-btn:hover { background-color: var(--border-color); }
+
+        /* === CONTENIDO PRINCIPAL === */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
+        /* Barra Top (Hub) */
+        .hub-nav { display: flex; gap: 8px; padding: 12px; background-color: var(--bg-header); border-bottom: 1px solid var(--border-color); }
+        .hub-link { flex: 1; text-align: center; padding: 10px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; transition: all 0.2s; }
+        .hub-link.active { background-color: var(--bg-purple-main); color: white; }
+        .hub-link.inactive { background-color: var(--bg-input); color: var(--text-main); }
+        .hub-link.inactive:hover { filter: brightness(0.95); }
+
+        /* Buscador */
+        .search-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background-color: var(--bg-header); border-bottom: 1px solid var(--border-color); }
+        .search-title { font-size: 20px; font-weight: bold; }
+        .search-box { width: 300px; }
+
+        /* Grilla de Plantillas */
+        .templates-area { flex: 1; overflow-y: auto; padding: 24px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        
+        .card-header { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; background-color: rgba(0,0,0,0.02); }
+        .card-icon { background-color: var(--bg-purple-light); color: var(--text-purple); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .card-title { font-weight: 600; font-size: 16px; }
+        
+        .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+        .card-text { flex: 1; font-size: 14px; line-height: 1.6; margin-bottom: 20px; white-space: pre-wrap; color: var(--text-muted); }
+        .highlight { background-color: var(--bg-purple-light); color: var(--text-purple); font-weight: bold; padding: 2px 4px; border-radius: 4px; }
+        
+        .copy-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; background-color: var(--bg-purple-main); color: white; box-shadow: var(--shadow-btn); }
+        .copy-btn:hover { background-color: var(--bg-purple-hover); transform: scale(0.98); }
+        .copy-btn.success { background-color: #10b981; box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39); }
+
+        /* Mensaje Vacío */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+
+        /* Responsive */
+        .menu-toggle { display: none; background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; margin-right: 16px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 20; }
+        
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: -260px; height: 100%; }
+            .sidebar.open { left: 0; }
+            .menu-toggle { display: block; }
+            .search-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .search-box { width: 100%; }
+            .hub-nav { flex-direction: column; }
+            .overlay.active { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Overlay móvil -->
+    <div class="overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 class="logo-text">MUNDO</h1>
+                    <p class="logo-sub">Social Selling</p>
+                </div>
+                <button class="menu-toggle" onclick="toggleSidebar()" style="margin:0;">✖</button>
+            </div>
+        </div>
+        
+        <div class="inputs-container">
+            <div class="input-group">
+                <label class="input-label">Tu Nombre (Ejecutivo)</label>
+                <input type="text" id="agent-input" class="custom-input" placeholder="Ej. Juan Pérez" oninput="updateVariables()">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Nombre del Cliente</label>
+                <input type="text" id="client-input" class="custom-input" placeholder="Ej. María Gómez" oninput="updateVariables()">
+            </div>
+        </div>
+
+        <ul class="category-list" id="category-list"></ul>
+
+        <div class="theme-toggle">
+            <button class="theme-btn" onclick="toggleTheme()">
+                <span id="theme-icon">🌙</span> <span id="theme-text">Modo Oscuro</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <!-- HUB NAV -->
+        <nav class="hub-nav">
+            <a href="index.html" class="hub-link active">💬 Plantillas de Venta</a>
+            <a href="matriz.html" class="hub-link inactive">🔀 Matriz de Tipificación</a>
+            <a href="calidad.html" class="hub-link inactive">✅ Pauta de Calidad</a>
+        </nav>
+
+        <!-- SEARCH HEADER -->
+        <header class="search-header">
+            <div style="display: flex; align-items: center;">
+                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                <h2 class="search-title" id="active-title">Todos</h2>
+            </div>
+            <div class="search-box">
+                <input type="text" id="search-input" class="custom-input" placeholder="🔍 Buscar frase, plan u objeción..." oninput="handleSearch()">
+            </div>
+        </header>
+
+        <!-- TEMPLATES GRID -->
+        <div class="templates-area" id="templates-container"></div>
+    </main>
+
+    <script>
+        // --- DATA ---
+        const templates = [
+            // SALUDOS
+            { id: 1, category: "Saludos", icon: "💬", title: "Inbound (El cliente escribe)", text: "¡Hola! Bienvenido al chat de ventas Mundo 🚀. Soy [Tu Nombre] y voy a ayudarte a mejorar tu conexión hoy. Cuéntame, ¿buscas un plan para tu celular o internet para tu casa?" },
+            { id: 2, category: "Saludos", icon: "💬", title: "Outbound / Lead Web", text: "¡Hola, [Nombre del Cliente]! 👋 Vimos que nos dejaste tus datos porque te interesa la fibra de Mundo ⚡️. Soy [Tu Nombre], ¿tienes un minuto por acá para mostrarte la promoción que te podemos armar?" },
+            { id: 3, category: "Saludos", icon: "💬", title: "Outbound / Base en Frío", text: "¡Hola! Te hablamos desde el chat de ventas Mundo. Vimos tu interés en contratar la mejor fibra óptica de Latinoamérica. ¿Con quién tengo el gusto de hablar hoy? ✨" },
+            
+            // TIEMPOS DE ESPERA
+            { id: 4, category: "Tiempos de Espera", icon: "⏳", title: "Validación inicial", text: "Por favor, dame un momento ⏳. Voy a validar la factibilidad en el sistema para darte la mejor opción. Te pido no desconectarte de la línea." },
+            { id: 5, category: "Tiempos de Espera", icon: "✅", title: "Retorno con información", text: "Muchas gracias por tu paciencia en la línea. ✅ Ya tengo la información en pantalla y te tengo excelentes noticias..." },
+            
+            // SONDEO
+            { id: 6, category: "Sondeo", icon: "❓", title: "Móvil: Dolor de Gigas", text: "¿Hoy en día te quedas corto de gigas a fin de mes o andas bien con lo que tienes?" },
+            { id: 7, category: "Sondeo", icon: "❓", title: "Móvil: Portabilidad", text: "¿Te gustaría mantener tu mismo número de siempre o prefieres una línea totalmente nueva?" },
+            { id: 8, category: "Sondeo", icon: "❓", title: "Móvil: Presupuesto", text: "Para armarte algo a medida y buscar un ahorro, ¿cuánto sueles pagar mes a mes con tu compañía actual?" },
+            { id: 9, category: "Sondeo", icon: "❓", title: "Hogar: Validación", text: "¿Tienes internet actualmente o estás buscando contratar uno nuevo para tu domicilio?" },
+            { id: 10, category: "Sondeo", icon: "❓", title: "Hogar: Dispositivos", text: "Para no quedarme corto con la velocidad, ¿cuántos dispositivos se conectan al wifi en tu casa al mismo tiempo?" },
+            
+            // COBERTURA
+            { id: 13, category: "Cobertura", icon: "📍", title: "Solicitud de Dirección", text: "¡Claro que sí! Para verificar disponibilidad necesito tu dirección exacta. Indícame, por favor: Región, Comuna, Nombre de Calle o Pasaje y Número Externo. 📍" },
+            { id: 14, category: "Cobertura", icon: "📍", title: "Tiempos de Instalación", text: "Una vez generada la orden, la instalación queda programada entre 24 y 72 horas, según la zona. ⏳ ¡Y no pagas nada por activación! ¿Lo dejamos agendado de inmediato?" },
+            
+            // OFERTAS - FRASES GATILLO
+            { id: 15, category: "Ofertas", icon: "⚡", title: "Frase de Impacto 1 (Móvil)", text: "¿Estás pagando de más en tu compañía actual? Por solo $4.990, Mundo te entrega 50 GB + redes sin tope. Portabilidad en 1 día, sin costos. ¿Comenzamos el trámite ahora? 🚀" },
+            { id: 16, category: "Ofertas", icon: "⚡", title: "Frase de Impacto 2 (General)", text: "Si ya pagas por un servicio, ¡que sea el mejor! Mundo te da más velocidad por menos precio. ¿Deseas comprobarlo?" },
+
+            // NUEVAS OFERTAS: CATEGORÍA 1 (FIBRA SIMÉTRICA)
+            { id: 31, category: "Ofertas", icon: "📶", title: "Fibra: Plan 800 Megas", text: "🚀 Vuela con el internet más rápido de Latinoamérica. Llévate 800 Megas de Fibra Simétrica por solo $15.990/mes por 12 meses, disfrutando siempre la misma velocidad garantizada tanto de subida como de bajada." },
+            { id: 32, category: "Ofertas", icon: "📶", title: "Fibra: Plan 1 Giga", text: "⚡ Llegamos con fibra de alta calidad a zonas donde otras compañías simplemente no llegan. Contrata 1 GIGA de Fibra Simétrica por solo $15.990/mes por 12 meses. 💬 ¡Comenta \"1 GIGA\" y te contactamos de inmediato!" },
+            { id: 33, category: "Ofertas", icon: "📶", title: "Fibra: Plan 2 Gigas", text: "🔥 Navega con la tranquilidad de estar en la compañía reconocida con el Premio Lealtad del Consumidor. Tu plan de 2 Gigas de Fibra Simétrica te espera por solo $16.990/mes por 12 meses. 💬" },
+            { id: 34, category: "Ofertas", icon: "📶", title: "Fibra: Plan 3 Gigas", text: "🛸 Descarga y juega sin límites con la mejor velocidad de internet de toda la región. Contrata 3 Gigas de Fibra Simétrica por $19.990/mes por 12 meses." },
+            { id: 35, category: "Ofertas", icon: "📶", title: "Fibra: Plan 10 Gigas", text: "💎 Potencia extrema para los más exigentes con la misma ultra-velocidad para enviar y recibir archivos pesados. Navega con 10 Gigas de Fibra Simétrica por $30.990/mes por 12 meses. 💬 ¡Déjanos tu dirección por DM y conéctate al futuro!" },
+
+            // NUEVAS OFERTAS: CATEGORÍA 2 (COMBO TV)
+            { id: 36, category: "Ofertas", icon: "📺", title: "Combo: 800 Megas + TV GO", text: "🍿 Transforma tu televisor tradicional en un Smart TV con el decodificador Android TV que incluimos en tu plan. Lleva 800 Megas Simétricos + TV Mundo GO! por solo $25.990/mes por 12 meses. 💬 ¡Escríbenos al DM para contratar!" },
+            { id: 37, category: "Ofertas", icon: "📺", title: "Combo: 1 Giga + TV GO", text: "🎬 Disfruta de cientos de canales HD en vivo y descarga tus apps de streaming favoritas junto a 1 GIGA de Fibra Simétrica por $28.990/mes por 12 meses. 💬 ¡Comenta \"PROMO TV\" y revisamos tu cobertura!" },
+            { id: 38, category: "Ofertas", icon: "📺", title: "Combo: 3 Gigas + TV GO", text: "🚀 Velocidad premium y diversión sin límites con una programación moderna que se adapta a tus gustos. Contrata 3 Gigas de Fibra Simétrica + TV Mundo GO! por $38.990/mes por 12 meses. 💬" },
+            { id: 39, category: "Ofertas", icon: "📺", title: "Combo: 10 Gigas + TV GO", text: "👑 El máximo entretenimiento llega incluso a zonas de alta complejidad donde nadie más está. Experimenta 10 Gigas de Fibra Simétrica + TV Mundo GO! por $69.290/mes por 12 meses. 💬 ¡Solicítalo ahora enviándonos un DM!" },
+
+            // NUEVAS OFERTAS: CATEGORÍA 3 (PREMIUM)
+            { id: 40, category: "Ofertas", icon: "⭐", title: "Premium: 1000 Megas + TV", text: "🌟 Asegura la conectividad total de tu familia sumándote a la red en la que ya confían más de 1.000.000 de hogares chilenos. Lleva 1000 Megas Simétricos + TV Mundo GO! por $59.000/mes.💬 ¡Háblanos al DM y te asesoramos!" },
+            { id: 41, category: "Ofertas", icon: "⭐", title: "Premium: 3 Gigas + TV", text: "⚡ Disfruta la máxima estabilidad de conexión con el internet comprobado como el más rápido de Latinoamérica. Lleva 3 Gigas + TV Mundo GO! por $69.500/mes. 💬 ¡Comenta \"3 MUNDO\" y cámbiate hoy!" },
+            { id: 42, category: "Ofertas", icon: "⭐", title: "Premium: 10 Gigas + TV", text: "💎 Llevamos el internet más potente y la televisión de primer nivel a lugares donde otras redes no tienen cobertura. Tu plan 10 Gigas de Fibra + TV Mundo GO! por $111.500/mes.💬 ¡Escríbenos por interno y asegura tu conexión!" },
+
+            // NUEVAS OFERTAS: CATEGORÍA 4 (MÓVIL)
+            { id: 43, category: "Ofertas", icon: "📱", title: "Móvil: Plan S (100 Gigas)", text: "📲 Navega, chatea y mira videos con nuestras Redes Sociales Libres que no descuentan tus gigas mensuales. Cámbiate al Plan S de 100 GIGAS y 1000 minutos por solo $5.490/mes por 12 meses. 💬 ¡Envíanos un DM con la palabra \"PORTABILIDAD\"!" },
+            { id: 44, category: "Ofertas", icon: "📱", title: "Móvil: Plan M (300 Gigas)", text: "🤩 Mira todo tu contenido favorito sin gastar tu saldo de navegación gracias a nuestras apps libres. Lleva el Plan M de 300 GIGAS y Minutos Libres por solo $5.990/mes por 12 meses. 💬 ¡Escríbenos para pedir tu chip!" },
+            { id: 45, category: "Ofertas", icon: "📱", title: "Móvil: Plan L (500 Gigas)", text: "🚀 Mantén el control total de tus gastos a fin de mes con nuestro sistema de cuenta controlada. Disfruta 500 GIGAS, Minutos Libres y Redes Sociales Libres por solo $7.990/mes por 12 meses. 💬 ¡Comenta \"MÓVIL L\" y te portamos en minutos!" },
+            { id: 46, category: "Ofertas", icon: "📱", title: "Móvil: Plan XL (Libre)", text: "♾️ Internet móvil de altísima velocidad y sin límites, con la mejor cobertura 4G para que disfrutes tu conexión en cualquier lugar. Tu Plan XL con GIGAS y Minutos Libres por solo $8.394/mes por 6 meses. 💬 ¡Háblanos al DM para contratar tu línea!" },
+
+            // OBJECIONES
+            { id: 19, category: "Objeciones", icon: "🛡️", title: "Lo voy a pensar / No hay tiempo", text: "Entiendo que quieras pensarlo bien, [Nombre del Cliente]. Si gustas, puedo dejarte la oferta reservada para que no pierdas el beneficio de la instalación gratis. ¡Es sin ningún compromiso! 😉" },
+            { id: 20, category: "Objeciones", icon: "🛡️", title: "No me interesa / Estoy bien", text: "Es genial que tengas buen servicio. Aun así, podrías acceder a descuentos especiales y mayor velocidad garantizada por 12 meses al portarte a Mundo. ¡Te ayudo a comparar opciones si quieres!" },
+            { id: 22, category: "Objeciones", icon: "🛡️", title: "No tengo dinero ahora", text: "Te entiendo, [Nombre del Cliente], y justamente Mundo ofrece planes muy accesibles desde $12.990. Además, la instalación es totalmente gratis y empiezas a pagar desde el próximo mes. ¿Te animas a agendarlo? 📅" },
+
+            // TRÁMITES
+            { id: 24, category: "Trámites", icon: "📄", title: "Envío de Biometría", text: "Por normativa de la SUBTEL y para proteger tus datos, te enviamos un correo con el asunto 'En Mundo Nos Preocupamos Por Tu Seguridad'. Debes realizar la validación para continuar el trámite. Estoy atento si tienes alguna duda. 📩" },
+            { id: 26, category: "Trámites", icon: "📄", title: "Validación Exitosa", text: "¡Validación exitosa, [Nombre]! ✅ Debemos continuar con la lectura de contrato para finalizar tu solicitud. Por favor indícame un número de contacto principal y uno secundario." },
+
+            // CIERRES
+            { id: 27, category: "Cierres", icon: "🤝", title: "Despedida (Venta Exitosa)", text: "Muchas gracias por tu paciencia y por contratar con MUNDO, [Nombre del Cliente]. ¡Tu mundo tienes que vivirlo! Para el cierre de esta conversación, te invito a que califiques mi atención. ¡Hasta pronto! ⭐⭐⭐⭐⭐" },
+            { id: 28, category: "Cierres", icon: "🤝", title: "Despedida (Sin Venta)", text: "Fue un gusto conversar contigo, [Nombre del Cliente]. Quedo atento por si decides avanzar. Guarda mi número por si cambias de opinión. ¡Que tengas un excelente día! 👋" }
+        ];
+
+        const categories = ["Todos", "Saludos", "Tiempos de Espera", "Sondeo", "Cobertura", "Ofertas", "Objeciones", "Trámites", "Cierres"];
+
+        // --- ESTADO ---
+        let activeCategory = "Todos";
+        let searchTerm = "";
+        let agentName = localStorage.getItem('agentName') || "";
+        let clientName = ""; 
+        let isDarkMode = false;
+
+        // --- INICIALIZACIÓN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('agent-input').value = agentName;
+            renderCategories();
+            renderTemplates();
+        });
+
+        // --- FUNCIONES ---
+        function updateVariables() {
+            agentName = document.getElementById('agent-input').value;
+            localStorage.setItem('agentName', agentName);
+            clientName = document.getElementById('client-input').value;
+            renderTemplates(); 
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('category-list');
+            list.innerHTML = '';
+            
+            categories.forEach(cat => {
+                const li = document.createElement('li');
+                const isActive = cat === activeCategory ? 'active' : '';
+                li.innerHTML = `<button onclick="setCategory('${cat}')" class="cat-btn ${isActive}">${cat}</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            document.getElementById('active-title').innerText = cat;
+            if(window.innerWidth <= 768) toggleSidebar(); 
+            renderCategories();
+            renderTemplates();
+        }
+
+        function handleSearch() {
+            searchTerm = document.getElementById('search-input').value.toLowerCase();
+            renderTemplates();
+        }
+
+        function formatText(text) {
+            // Reemplaza corchetes por span resaltado
+            return text.replace(/(\[.*?\])/g, '<span class="highlight">$1</span>');
+        }
+
+        function renderTemplates() {
+            const container = document.getElementById('templates-container');
+            container.innerHTML = '';
+
+            const filtered = templates.filter(t => {
+                const matchSearch = t.title.toLowerCase().includes(searchTerm) || t.text.toLowerCase().includes(searchTerm);
+                const matchCat = activeCategory === "Todos" || t.category === activeCategory;
+                return matchSearch && matchCat;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>No encontramos plantillas</h3>
+                        <p>Intenta buscar con otras palabras o selecciona "Todos".</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'grid';
+
+            filtered.forEach(t => {
+                // Reemplazo de variables
+                let finalTxt = t.text;
+                if (agentName.trim() !== '') finalTxt = finalTxt.replace(/\[Tu Nombre\]/g, agentName.trim());
+                if (clientName.trim() !== '') {
+                    finalTxt = finalTxt.replace(/\[Nombre del Cliente\]/g, clientName.trim());
+                    finalTxt = finalTxt.replace(/\[Nombre\]/g, clientName.trim());
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-icon">${t.icon}</div>
+                        <div class="card-title">${t.title}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-text">${formatText(finalTxt)}</div>
+                        <button id="btn-${t.id}" class="copy-btn" onclick="copyText(${t.id})">
+                            📋 Copiar Respuesta
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+        }
+
+        function copyText(id) {
+            const template = templates.find(t => t.id === id);
+            if (!template) return;
+
+            let textToCopy = template.text;
+            if (agentName.trim() !== '') textToCopy = textToCopy.replace(/\[Tu Nombre\]/g, agentName.trim());
+            if (clientName.trim() !== '') {
+                textToCopy = textToCopy.replace(/\[Nombre del Cliente\]/g, clientName.trim());
+                textToCopy = textToCopy.replace(/\[Nombre\]/g, clientName.trim());
+            }
+
+            // Método seguro de copiado
+            const ta = document.createElement("textarea");
+            ta.value = textToCopy;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+
+            // Feedback visual
+            const btn = document.getElementById(`btn-${id}`);
+            const originalText = btn.innerHTML;
+            btn.classList.add('success');
+            btn.innerHTML = '✅ ¡Copiado!';
+
+            setTimeout(() => {
+                btn.classList.remove('success');
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').innerText = '☀️';
+                document.getElementById('theme-text').innerText = 'Modo Claro';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').innerText = '🌙';
+                document.getElementById('theme-text').innerText = 'Modo Oscuro';
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
