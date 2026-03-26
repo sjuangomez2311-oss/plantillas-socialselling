@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Operaciones - MUNDO</title>
+    
+    <!-- Carga de Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            50: '#faf5ff', 100: '#f3e8ff', 200: '#e9d5ff',
+                            300: '#d8b4fe', 400: '#c084fc', 500: '#a855f7',
+                            600: '#9333ea', 700: '#7e22ce', 800: '#6b21a8', 900: '#581c87',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Carga de Iconos (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { transition: background-color 0.3s, color 0.3s; }
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden dark:bg-gray-900 dark:text-gray-100">
+
+    <!-- Overlay para móvil -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Navegación Lateral (Sidebar) -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-64 transform -translate-x-full lg:translate-x-0 sidebar-transition bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 flex flex-col">
+        
+        <!-- Cabecera del Sidebar -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">MUNDO</h1>
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Social Selling</p>
+            </div>
+            <button class="lg:hidden text-gray-500 dark:text-gray-300" onclick="toggleSidebar()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <!-- Contenedor de Inputs -->
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
+            <div>
+                <label for="agent-name-input" class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Tu Nombre (Ejecutivo)</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" id="agent-name-input" placeholder="Ej. Juan Pérez" class="block w-full pl-9 pr-3 py-2 border rounded-lg leading-5 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 text-sm" oninput="handleVariablesChange()">
+                </div>
+            </div>
+            <div>
+                <label for="client-name-input" class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Nombre del Cliente</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" id="client-name-input" placeholder="Ej. María Gómez" class="block w-full pl-9 pr-3 py-2 border rounded-lg leading-5 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-purple-50 border-purple-200 text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:border-purple-800 dark:text-white dark:placeholder-gray-400 text-sm" oninput="handleVariablesChange()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Categorías -->
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul id="category-list" class="space-y-1 px-3"></ul>
+        </div>
+
+        <!-- Botón Modo Oscuro -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <button onclick="toggleDarkMode()" class="w-full flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition-colors bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+                <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+                <span id="theme-text">Modo Oscuro</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden w-full relative">
+        
+        <!-- BARRA DE NAVEGACIÓN DEL HUB (CONECTA TUS 3 HERRAMIENTAS) -->
+        <nav class="flex flex-col sm:flex-row gap-2 p-3 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <a href="index.html" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-bold shadow-sm cursor-default" aria-label="Plantillas de Ventas (Actual)">
+                <i data-lucide="message-square" class="w-4 h-4"></i> Plantillas de Venta
+            </a>
+            <a href="matriz.html" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white rounded-lg font-bold transition-all shadow-sm active:scale-95" aria-label="Ir a la Matriz de Tipificación">
+                <i data-lucide="git-merge" class="w-4 h-4"></i> Matriz de Tipificación
+            </a>
+            <a href="calidad.html" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white rounded-lg font-bold transition-all shadow-sm active:scale-95" aria-label="Ir a la Pauta de Calidad">
+                <i data-lucide="check-square" class="w-4 h-4"></i> Pauta de Calidad
+            </a>
+        </nav>
+
+        <!-- Cabecera Superior (Buscador) -->
+        <header class="p-4 sm:p-6 border-b shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between z-10 bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center w-full sm:w-auto">
+                <button class="mr-4 lg:hidden text-gray-600 dark:text-gray-300" onclick="toggleSidebar()">
+                    <i data-lucide="menu"></i>
+                </button>
+                <h2 id="active-category-title" class="text-xl font-bold">Todos</h2>
+            </div>
+            
+            <div class="relative w-full sm:max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </div>
+                <input type="text" id="search-input" placeholder="Buscar frase, objeción o plan..." class="block w-full pl-10 pr-3 py-2 border rounded-xl leading-5 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" oninput="handleSearch()">
+            </div>
+        </header>
+
+        <!-- Grilla de Plantillas -->
+        <div id="templates-container" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
+            <!-- Tarjetas JavaScript -->
+        </div>
+    </main>
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        // --- DATA: PLANTILLAS (NUEVAS OFERTAS INTEGRADAS) ---
+        const templates = [
+            // SALUDOS
+            { id: 1, category: "Saludos", icon: "message-square", title: "Inbound (El cliente escribe)", text: "¡Hola! Bienvenido al chat de ventas Mundo 🚀. Soy [Tu Nombre] y voy a ayudarte a mejorar tu conexión hoy. Cuéntame, ¿buscas un plan para tu celular o internet para tu casa?" },
+            { id: 2, category: "Saludos", icon: "message-square", title: "Outbound / Lead Web", text: "¡Hola, [Nombre del Cliente]! 👋 Vimos que nos dejaste tus datos porque te interesa la fibra de Mundo ⚡️. Soy [Tu Nombre], ¿tienes un minuto por acá para mostrarte la promoción que te podemos armar?" },
+            { id: 3, category: "Saludos", icon: "message-square", title: "Outbound / Base en Frío", text: "¡Hola! Te hablamos desde el chat de ventas Mundo. Vimos tu interés en contratar la mejor fibra óptica de Latinoamérica. ¿Con quién tengo el gusto de hablar hoy? ✨" },
+            
+            // TIEMPOS DE ESPERA
+            { id: 4, category: "Tiempos de Espera", icon: "clock", title: "Validación inicial", text: "Por favor, dame un momento ⏳. Voy a validar la factibilidad en el sistema para darte la mejor opción. Te pido no desconectarte de la línea." },
+            { id: 5, category: "Tiempos de Espera", icon: "clock", title: "Retorno con información", text: "Muchas gracias por tu paciencia en la línea. ✅ Ya tengo la información en pantalla y te tengo excelentes noticias..." },
+            
+            // SONDEO
+            { id: 6, category: "Sondeo", icon: "help-circle", title: "Móvil: Dolor de Gigas", text: "¿Hoy en día te quedas corto de gigas a fin de mes o andas bien con lo que tienes?" },
+            { id: 7, category: "Sondeo", icon: "help-circle", title: "Móvil: Portabilidad", text: "¿Te gustaría mantener tu mismo número de siempre o prefieres una línea totalmente nueva?" },
+            { id: 8, category: "Sondeo", icon: "help-circle", title: "Móvil: Presupuesto", text: "Para armarte algo a medida y buscar un ahorro, ¿cuánto sueles pagar mes a mes con tu compañía actual?" },
+            { id: 9, category: "Sondeo", icon: "help-circle", title: "Hogar: Validación", text: "¿Tienes internet actualmente o estás buscando contratar uno nuevo para tu domicilio?" },
+            { id: 10, category: "Sondeo", icon: "help-circle", title: "Hogar: Dispositivos", text: "Para no quedarme corto con la velocidad, ¿cuántos dispositivos se conectan al wifi en tu casa al mismo tiempo?" },
+            
+            // COBERTURA
+            { id: 13, category: "Cobertura", icon: "map-pin", title: "Solicitud de Dirección", text: "¡Claro que sí! Para verificar disponibilidad necesito tu dirección exacta. Indícame, por favor: Región, Comuna, Nombre de Calle o Pasaje y Número Externo. 📍" },
+            { id: 14, category: "Cobertura", icon: "map-pin", title: "Tiempos de Instalación", text: "Una vez generada la orden, la instalación queda programada entre 24 y 72 horas, según la zona. ⏳ ¡Y no pagas nada por activación! ¿Lo dejamos agendado de inmediato?" },
+            
+            // OFERTAS - FRASES GATILLO
+            { id: 15, category: "Ofertas", icon: "zap", title: "Frase de Impacto 1 (Móvil)", text: "¿Estás pagando de más en tu compañía actual? Por solo $4.990, Mundo te entrega 50 GB + redes sin tope. Portabilidad en 1 día, sin costos. ¿Comenzamos el trámite ahora? 🚀" },
+            { id: 16, category: "Ofertas", icon: "zap", title: "Frase de Impacto 2 (General)", text: "Si ya pagas por un servicio, ¡que sea el mejor! Mundo te da más velocidad por menos precio. ¿Deseas comprobarlo?" },
+
+            // NUEVAS OFERTAS: CATEGORÍA 1 (FIBRA SIMÉTRICA)
+            { id: 31, category: "Ofertas", icon: "wifi", title: "Fibra: Plan 800 Megas", text: "🚀 Vuela con el internet más rápido de Latinoamérica. Llévate 800 Megas de Fibra Simétrica por solo $15.990/mes por 12 meses, disfrutando siempre la misma velocidad garantizada tanto de subida como de bajada." },
+            { id: 32, category: "Ofertas", icon: "wifi", title: "Fibra: Plan 1 Giga", text: "⚡ Llegamos con fibra de alta calidad a zonas donde otras compañías simplemente no llegan. Contrata 1 GIGA de Fibra Simétrica por solo $15.990/mes por 12 meses. 💬 ¡Comenta \"1 GIGA\" y te contactamos de inmediato!" },
+            { id: 33, category: "Ofertas", icon: "wifi", title: "Fibra: Plan 2 Gigas", text: "🔥 Navega con la tranquilidad de estar en la compañía reconocida con el Premio Lealtad del Consumidor. Tu plan de 2 Gigas de Fibra Simétrica te espera por solo $16.990/mes por 12 meses. 💬" },
+            { id: 34, category: "Ofertas", icon: "wifi", title: "Fibra: Plan 3 Gigas", text: "🛸 Descarga y juega sin límites con la mejor velocidad de internet de toda la región. Contrata 3 Gigas de Fibra Simétrica por $19.990/mes por 12 meses." },
+            { id: 35, category: "Ofertas", icon: "wifi", title: "Fibra: Plan 10 Gigas", text: "💎 Potencia extrema para los más exigentes con la misma ultra-velocidad para enviar y recibir archivos pesados. Navega con 10 Gigas de Fibra Simétrica por $30.990/mes por 12 meses. 💬 ¡Déjanos tu dirección por DM y conéctate al futuro!" },
+
+            // NUEVAS OFERTAS: CATEGORÍA 2 (COMBO TV)
+            { id: 36, category: "Ofertas", icon: "tv", title: "Combo: 800 Megas + TV GO", text: "🍿 Transforma tu televisor tradicional en un Smart TV con el decodificador Android TV que incluimos en tu plan. Lleva 800 Megas Simétricos + TV Mundo GO! por solo $25.990/mes por 12 meses. 💬 ¡Escríbenos al DM para contratar!" },
+            { id: 37, category: "Ofertas", icon: "tv", title: "Combo: 1 Giga + TV GO", text: "🎬 Disfruta de cientos de canales HD en vivo y descarga tus apps de streaming favoritas junto a 1 GIGA de Fibra Simétrica por $28.990/mes por 12 meses. 💬 ¡Comenta \"PROMO TV\" y revisamos tu cobertura!" },
+            { id: 38, category: "Ofertas", icon: "tv", title: "Combo: 3 Gigas + TV GO", text: "🚀 Velocidad premium y diversión sin límites con una programación moderna que se adapta a tus gustos. Contrata 3 Gigas de Fibra Simétrica + TV Mundo GO! por $38.990/mes por 12 meses. 💬" },
+            { id: 39, category: "Ofertas", icon: "tv", title: "Combo: 10 Gigas + TV GO", text: "👑 El máximo entretenimiento llega incluso a zonas de alta complejidad donde nadie más está. Experimenta 10 Gigas de Fibra Simétrica + TV Mundo GO! por $69.290/mes por 12 meses. 💬 ¡Solicítalo ahora enviándonos un DM!" },
+
+            // NUEVAS OFERTAS: CATEGORÍA 3 (PREMIUM)
+            { id: 40, category: "Ofertas", icon: "star", title: "Premium: 1000 Megas + TV", text: "🌟 Asegura la conectividad total de tu familia sumándote a la red en la que ya confían más de 1.000.000 de hogares chilenos. Lleva 1000 Megas Simétricos + TV Mundo GO! por $59.000/mes.💬 ¡Háblanos al DM y te asesoramos!" },
+            { id: 41, category: "Ofertas", icon: "star", title: "Premium: 3 Gigas + TV", text: "⚡ Disfruta la máxima estabilidad de conexión con el internet comprobado como el más rápido de Latinoamérica. Lleva 3 Gigas + TV Mundo GO! por $69.500/mes. 💬 ¡Comenta \"3 MUNDO\" y cámbiate hoy!" },
+            { id: 42, category: "Ofertas", icon: "star", title: "Premium: 10 Gigas + TV", text: "💎 Llevamos el internet más potente y la televisión de primer nivel a lugares donde otras redes no tienen cobertura. Tu plan 10 Gigas de Fibra + TV Mundo GO! por $111.500/mes.💬 ¡Escríbenos por interno y asegura tu conexión!" },
+
+            // NUEVAS OFERTAS: CATEGORÍA 4 (MÓVIL)
+            { id: 43, category: "Ofertas", icon: "smartphone", title: "Móvil: Plan S (100 Gigas)", text: "📲 Navega, chatea y mira videos con nuestras Redes Sociales Libres que no descuentan tus gigas mensuales. Cámbiate al Plan S de 100 GIGAS y 1000 minutos por solo $5.490/mes por 12 meses. 💬 ¡Envíanos un DM con la palabra \"PORTABILIDAD\"!" },
+            { id: 44, category: "Ofertas", icon: "smartphone", title: "Móvil: Plan M (300 Gigas)", text: "🤩 Mira todo tu contenido favorito sin gastar tu saldo de navegación gracias a nuestras apps libres. Lleva el Plan M de 300 GIGAS y Minutos Libres por solo $5.990/mes por 12 meses. 💬 ¡Escríbenos para pedir tu chip!" },
+            { id: 45, category: "Ofertas", icon: "smartphone", title: "Móvil: Plan L (500 Gigas)", text: "🚀 Mantén el control total de tus gastos a fin de mes con nuestro sistema de cuenta controlada. Disfruta 500 GIGAS, Minutos Libres y Redes Sociales Libres por solo $7.990/mes por 12 meses. 💬 ¡Comenta \"MÓVIL L\" y te portamos en minutos!" },
+            { id: 46, category: "Ofertas", icon: "smartphone", title: "Móvil: Plan XL (Libre)", text: "♾️ Internet móvil de altísima velocidad y sin límites, con la mejor cobertura 4G para que disfrutes tu conexión en cualquier lugar. Tu Plan XL con GIGAS y Minutos Libres por solo $8.394/mes por 6 meses. 💬 ¡Háblanos al DM para contratar tu línea!" },
+
+            // OBJECIONES
+            { id: 19, category: "Objeciones", icon: "shield-alert", title: "Lo voy a pensar / No hay tiempo", text: "Entiendo que quieras pensarlo bien, [Nombre del Cliente]. Si gustas, puedo dejarte la oferta reservada para que no pierdas el beneficio de la instalación gratis. ¡Es sin ningún compromiso! 😉" },
+            { id: 20, category: "Objeciones", icon: "shield-alert", title: "No me interesa / Estoy bien", text: "Es genial que tengas buen servicio. Aun así, podrías acceder a descuentos especiales y mayor velocidad garantizada por 12 meses al portarte a Mundo. ¡Te ayudo a comparar opciones si quieres!" },
+            { id: 22, category: "Objeciones", icon: "shield-alert", title: "No tengo dinero ahora", text: "Te entiendo, [Nombre del Cliente], y justamente Mundo ofrece planes muy accesibles desde $12.990. Además, la instalación es totalmente gratis y empiezas a pagar desde el próximo mes. ¿Te animas a agendarlo? 📅" },
+
+            // TRÁMITES
+            { id: 24, category: "Trámites", icon: "file-text", title: "Envío de Biometría", text: "Por normativa de la SUBTEL y para proteger tus datos, te enviamos un correo con el asunto 'En Mundo Nos Preocupamos Por Tu Seguridad'. Debes realizar la validación para continuar el trámite. Estoy atento si tienes alguna duda. 📩" },
+            { id: 26, category: "Trámites", icon: "file-text", title: "Validación Exitosa", text: "¡Validación exitosa, [Nombre]! ✅ Debemos continuar con la lectura de contrato para finalizar tu solicitud. Por favor indícame un número de contacto principal y uno secundario." },
+
+            // CIERRES
+            { id: 27, category: "Cierres", icon: "check-circle", title: "Despedida (Venta Exitosa)", text: "Muchas gracias por tu paciencia y por contratar con MUNDO, [Nombre del Cliente]. ¡Tu mundo tienes que vivirlo! Para el cierre de esta conversación, te invito a que califiques mi atención. ¡Hasta pronto! ⭐⭐⭐⭐⭐" },
+            { id: 28, category: "Cierres", icon: "check-circle", title: "Despedida (Sin Venta)", text: "Fue un gusto conversar contigo, [Nombre del Cliente]. Quedo atento por si decides avanzar. Guarda mi número por si cambias de opinión. ¡Que tengas un excelente día! 👋" }
+        ];
+
+        const categories = ["Todos", "Saludos", "Tiempos de Espera", "Sondeo", "Cobertura", "Ofertas", "Objeciones", "Trámites", "Cierres"];
+
+        // Estado de la aplicación
+        let activeCategory = "Todos";
+        let searchTerm = "";
+        let agentName = localStorage.getItem('agentName') || "";
+        let clientName = ""; 
+        let isDarkMode = false;
+        let isSidebarOpen = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('agent-name-input').value = agentName;
+            renderCategories();
+            renderTemplates();
+            lucide.createIcons();
+        });
+
+        function handleVariablesChange() {
+            agentName = document.getElementById('agent-name-input').value;
+            localStorage.setItem('agentName', agentName);
+            clientName = document.getElementById('client-name-input').value;
+            renderTemplates(); 
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('category-list');
+            list.innerHTML = '';
+            
+            categories.forEach(cat => {
+                const isActive = cat === activeCategory;
+                const activeClass = isActive 
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-100' 
+                    : 'hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-300';
+                
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <button onclick="setCategory('${cat}')" class="w-full text-left px-4 py-3 rounded-lg font-medium transition-colors flex items-center gap-3 ${activeClass}">
+                        ${cat}
+                    </button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            document.getElementById('active-category-title').innerText = cat;
+            if(window.innerWidth < 1024) toggleSidebar(); 
+            renderCategories();
+            renderTemplates();
+        }
+
+        function handleSearch() {
+            searchTerm = document.getElementById('search-input').value.toLowerCase();
+            renderTemplates();
+        }
+
+        function formatText(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            let safeText = div.innerHTML;
+            return safeText.replace(/(\[.*?\])/g, '<span class="font-bold px-1 rounded mx-0.5 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200">$1</span>');
+        }
+
+        function renderTemplates() {
+            const container = document.getElementById('templates-container');
+            container.innerHTML = '';
+
+            const filtered = templates.filter(t => {
+                const matchesSearch = t.title.toLowerCase().includes(searchTerm) || t.text.toLowerCase().includes(searchTerm);
+                const matchesCategory = activeCategory === "Todos" || t.category === activeCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-64 text-center">
+                        <i data-lucide="search" class="w-12 h-12 mb-4 text-gray-300 dark:text-gray-600"></i>
+                        <h3 class="text-lg font-medium text-gray-800 dark:text-white">No encontramos plantillas</h3>
+                        <p class="mt-1 text-gray-500 dark:text-gray-400">Intenta buscar con otras palabras o selecciona "Todos".</p>
+                    </div>
+                `;
+            } else {
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6';
+
+                filtered.forEach(t => {
+                    let displayText = t.text;
+                    if (agentName.trim() !== '') displayText = displayText.replace(/\[Tu Nombre\]/g, agentName.trim());
+                    if (clientName.trim() !== '') {
+                        displayText = displayText.replace(/\[Nombre del Cliente\]/g, clientName.trim());
+                        displayText = displayText.replace(/\[Nombre\]/g, clientName.trim());
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'rounded-xl border shadow-sm flex flex-col overflow-hidden transition-all card-hover bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700';
+                    
+                    card.innerHTML = `
+                        <div class="p-4 border-b flex items-center gap-3 border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                            <span class="p-2 rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400">
+                                <i data-lucide="${t.icon}" class="w-5 h-5"></i>
+                            </span>
+                            <h3 class="font-semibold text-lg leading-tight text-gray-900 dark:text-white">${t.title}</h3>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="flex-1 text-sm sm:text-base leading-relaxed mb-6 whitespace-pre-wrap text-gray-600 dark:text-gray-300">${formatText(displayText)}</div>
+                            <button id="btn-${t.id}" onclick="copyText(${t.id})" class="w-full py-3 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/30">
+                                <i data-lucide="copy" class="w-5 h-5 copy-icon"></i>
+                                <span class="btn-text">Copiar Respuesta</span>
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                container.appendChild(grid);
+            }
+            lucide.createIcons();
+        }
+
+        function copyText(id) {
+            try {
+                const template = templates.find(t => t.id === id);
+                if (!template) return;
+
+                let textToCopy = template.text;
+                if (agentName.trim() !== '') textToCopy = textToCopy.replace(/\[Tu Nombre\]/g, agentName.trim());
+                if (clientName.trim() !== '') {
+                    textToCopy = textToCopy.replace(/\[Nombre del Cliente\]/g, clientName.trim());
+                    textToCopy = textToCopy.replace(/\[Nombre\]/g, clientName.trim());
+                }
+
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                textArea.remove();
+
+                const btn = document.getElementById(`btn-${id}`);
+                const icon = btn.querySelector('.copy-icon');
+                const span = btn.querySelector('.btn-text');
+
+                btn.classList.remove('bg-purple-600', 'hover:bg-purple-700', 'shadow-purple-600/30');
+                btn.classList.add('bg-green-500', 'shadow-green-500/30');
+                icon.outerHTML = `<svg class="w-5 h-5 copy-icon animate-bounce" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                span.innerText = "¡Copiado!";
+
+                setTimeout(() => {
+                    btn.classList.remove('bg-green-500', 'shadow-green-500/30');
+                    btn.classList.add('bg-purple-600', 'hover:bg-purple-700', 'shadow-purple-600/30');
+                    btn.querySelector('svg').outerHTML = `<i data-lucide="copy" class="w-5 h-5 copy-icon"></i>`;
+                    btn.querySelector('.btn-text').innerText = "Copiar Respuesta";
+                    lucide.createIcons({root: btn}); 
+                }, 2000);
+
+            } catch (err) {
+                console.error('Error al copiar el texto: ', err);
+            }
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').setAttribute('data-lucide', 'sun');
+                document.getElementById('theme-text').innerText = 'Modo Claro';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').setAttribute('data-lucide', 'moon');
+                document.getElementById('theme-text').innerText = 'Modo Oscuro';
+            }
+            lucide.createIcons();
+        }
+
+        function toggleSidebar() {
+            isSidebarOpen = !isSidebarOpen;
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
