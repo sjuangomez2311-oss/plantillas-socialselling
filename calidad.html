@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="es" class="bg-slate-50 antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mundo Academy 2026 | Pauta Comercial E-Learning</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        mundo: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' },
+                        soft: '#6366f1', // Indigo
+                        critical: '#ef4444', // Red
+                        warning: '#f59e0b', // Amber
+                        success: '#10b981' // Emerald
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.08)',
+                        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos de Acordeón Suave */
+        .acc-wrapper {
+            transition: all 0.3s ease;
+        }
+        .acc-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .acc-content.open {
+            grid-template-rows: 1fr;
+        }
+        .acc-inner {
+            overflow: hidden;
+        }
+
+        /* Burbujas de Diálogo (Ejemplos) */
+        .chat-container { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .bubble { padding: 12px 16px; border-radius: 14px; font-size: 0.85rem; max-width: 90%; line-height: 1.5; }
+        .bubble-customer { background: #f1f5f9; border: 1px solid #e2e8f0; border-bottom-right-radius: 4px; align-self: flex-start; color: #334155; }
+        .bubble-agent { background: #f0fdf4; border: 1px solid #bbf7d0; border-bottom-left-radius: 4px; align-self: flex-end; color: #166534; font-weight: 500; }
+        .bubble-bad { background: #fef2f2; border: 1px solid #fecaca; border-bottom-left-radius: 4px; align-self: flex-end; color: #991b1b; font-weight: 500; }
+
+        /* Placeholders de Imágenes */
+        .img-placeholder {
+            background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: #64748b; font-weight: 600; text-align: center; padding: 2rem;
+            border-bottom: 4px solid #0ea5e9;
+            background-size: cover;
+            background-position: center;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid #f8fafc; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 flex h-screen overflow-hidden selection:bg-mundo-100 selection:text-mundo-900">
+
+    <!-- Sidebar Navegación -->
+    <aside class="w-20 lg:w-72 bg-white border-r border-slate-200 flex flex-col justify-between transition-all duration-300 z-30 shadow-soft">
+        <div>
+            <!-- Logo Area -->
+            <div class="h-20 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-100">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-mundo-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-mundo-500/30">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                </div>
+                <div class="ml-3 hidden lg:block">
+                    <h1 class="text-lg font-extrabold text-slate-900 leading-tight">Mundo<span class="text-mundo-600">Academy</span></h1>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Edición 2026</span>
+                </div>
+            </div>
+
+            <!-- Navegación -->
+            <nav class="p-4 space-y-2 mt-2">
+                <p class="hidden lg:block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 px-2">Escenarios de Evaluación</p>
+                
+                <button onclick="switchTab('no-venta')" id="nav-no-venta" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all bg-mundo-50 text-mundo-700 font-semibold border border-mundo-100 shadow-sm group">
+                    <i class="fa-solid fa-headset text-lg w-6 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="hidden lg:block text-sm text-left">Pauta: No Venta</span>
+                </button>
+
+                <button onclick="switchTab('venta')" id="nav-venta" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-slate-500 hover:bg-slate-50 hover:text-slate-700 font-medium border border-transparent group">
+                    <i class="fa-solid fa-handshake text-lg w-6 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="hidden lg:block text-sm text-left">Pauta: Venta Efectiva</span>
+                </button>
+
+                <div class="my-4 border-t border-slate-100"></div>
+
+                <p class="hidden lg:block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 px-2">Entrenamiento</p>
+
+                <button onclick="switchTab('casos')" id="nav-casos" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 font-medium border border-transparent group">
+                    <i class="fa-solid fa-flask text-lg w-6 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="hidden lg:block text-sm text-left">Laboratorio & Casos</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Info Widget -->
+        <div class="p-4 border-t border-slate-100 hidden lg:block">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 text-left border border-slate-700 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 opacity-10"><i class="fa-solid fa-star text-7xl text-white"></i></div>
+                <h4 class="text-white font-bold text-sm mb-1 relative z-10">Herramienta Interactiva</h4>
+                <p class="text-xs text-slate-400 leading-relaxed relative z-10">Despliega cada ítem para leer el concepto original y su simulador de diálogo.</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="flex-1 flex flex-col h-screen relative bg-[#f8fafc]">
+        
+        <!-- Header Inteligente con Buscador -->
+        <header class="h-20 bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 flex items-center justify-between px-6 lg:px-8 shadow-sm flex-shrink-0">
+            <div class="flex items-center gap-4 flex-1">
+                <h2 id="header-title" class="text-lg lg:text-xl font-bold text-slate-800 truncate">Pauta: Llamada de Servicio (No Venta)</h2>
+                <span class="hidden md:inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
+                    <i class="fa-solid fa-circle-check mr-1.5"></i> Activa 2026
+                </span>
+            </div>
+
+            <!-- Buscador Global -->
+            <div class="relative w-full max-w-xs ml-4 hidden sm:block">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
+                </div>
+                <input type="text" id="searchInput" onkeyup="filterItems()" placeholder="Buscar ítem (Ej: Cross-selling)..." class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-mundo-500 focus:border-mundo-500 sm:text-sm transition-all">
+            </div>
+        </header>
+
+        <!-- Contenedor Scrolleable -->
+        <div class="flex-1 overflow-y-auto p-4 lg:p-8 pb-32" id="main-scroll-area">
+
+            <!-- =========================================================================
+                 VISTA 1: NO VENTA
+            ========================================================================== -->
+            <div id="view-no-venta" class="fade-in block max-w-7xl mx-auto">
+                
+                <!-- Hero Stats No Venta -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="bg-white p-6 rounded-3xl shadow-card border border-slate-100 flex items-center gap-6 relative overflow-hidden">
+                        <div class="absolute -right-6 -top-6 text-indigo-50 opacity-50"><i class="fa-solid fa-star text-9xl"></i></div>
+                        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-2xl shadow-inner-soft relative z-10">60<span class="text-sm">%</span></div>
+                        <div class="relative z-10">
+                            <h3 class="font-extrabold text-slate-800 text-lg">Blandas (PENC)</h3>
+                            <p class="text-sm text-slate-500">Técnicas comerciales y trato.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-card border border-slate-100 flex items-center gap-6 relative overflow-hidden">
+                        <div class="absolute -right-6 -top-6 text-red-50 opacity-50"><i class="fa-solid fa-triangle-exclamation text-9xl"></i></div>
+                        <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center font-bold text-2xl shadow-inner-soft relative z-10">40<span class="text-sm">%</span></div>
+                        <div class="relative z-10">
+                            <h3 class="font-extrabold text-slate-800 text-lg">Críticas (PEC)</h3>
+                            <p class="text-sm text-slate-500">Faltas graves (Penalización directa).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><i class="fa-solid fa-layer-group text-soft"></i> Desglose de Habilidades (PENC)</h3>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12" id="no-venta-container">
+                    
+                    <!-- BLOQUE 1: Captar Atención -->
+                    <div class="block-group bg-white rounded-3xl border border-slate-200 shadow-sm p-4">
+                        <div class="bg-slate-50 border border-slate-100 px-5 py-3 mb-4 flex justify-between items-center rounded-2xl">
+                            <h4 class="font-bold text-slate-800"><i class="fa-solid fa-1 text-indigo-400 mr-2"></i> Captar la Atención</h4>
+                            <span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg text-xs">Peso: 10%</span>
+                        </div>
+                        
+                        <!-- Ítems Separados -->
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-indigo-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">Saludo Corporativo</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-1 rounded">2%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-indigo-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">El ejecutivo debe presentarse con <strong>PRIMER nombre y PRIMER apellido</strong> contestando dentro de los 10 segundos de que entra la llamada (aplica IN/OUT), indicando que es ejecutivo de Ventas Mundo.</p>
+                                    
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-comments text-indigo-400 mr-1"></i> Simulador</h5>
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-agent">"Buenos días, mi nombre es Juan Pérez, ejecutivo del área de Ventas de Mundo..."</div>
+                                        <div class="bubble bubble-bad">"Hola soy Juan de Mundo..." <span class="text-xs font-normal italic block mt-1">(Falta apellido y área de ventas)</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-indigo-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">Identificación del Cliente</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-1 rounded">2%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-indigo-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">El ejecutivo debe identificar el nombre del cliente al inicio de la interacción para personalizar la atención.</p>
+                                    
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-agent">IN: "...¿Con quién tengo el gusto de hablar?"</div>
+                                        <div class="bubble bubble-agent">OUT: "...¿hablo con el señor Carlos Silva?"</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-indigo-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">Motivo de Llamado</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-1 rounded">2%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-indigo-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed">El ejecutivo debe consultar y confirmar el motivo del llamado del cliente para orientar correctamente la gestión. En caso de Outbound, el ejecutivo debe indicar el motivo de la llamada.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-indigo-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">Tono de Voz</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-1 rounded">2%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-indigo-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">Utilizar un tono de voz que capte la atención del cliente con dinamismo y entusiasmo. Debe transmitir seguridad para dar confianza al cliente. <strong>Debe evitar ser monótono en la forma de expresarse.</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl overflow-hidden hover:border-indigo-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">Frase de Impacto</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-1 rounded">2%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-indigo-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4"><strong>INBOUND:</strong> Utilizar la frase obligatoria "¿QUE DESEA CONTRATAR? Ya sea hogar o móvil". <br><strong>OUTBOUND:</strong> Lanzar un beneficio fuerte que capte la atención.</p>
+                                    
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-agent">OUT: "La llamo porque queremos darle la posibilidad de disfrutar del internet más rápido, ¡con un 50% de dcto los primeros 2 meses!"</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOQUE 2: Sondeo -->
+                    <div class="block-group bg-white rounded-3xl border border-slate-200 shadow-sm p-4">
+                        <div class="bg-slate-50 border border-slate-100 px-5 py-3 mb-4 flex justify-between items-center rounded-2xl">
+                            <h4 class="font-bold text-slate-800"><i class="fa-solid fa-2 text-blue-400 mr-2"></i> Sondeo y Escucha</h4>
+                            <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-lg text-xs">Peso: 14%</span>
+                        </div>
+                        
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-blue-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-blue-600 transition-colors">Preguntas de Situación Actual</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-blue-600 text-xs bg-blue-50 px-2 py-1 rounded">7%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-blue-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">Realizar preguntas para identificar situación actual del cliente (Servicio de interés, utilización, cuánto paga actualmente). <br><br><strong>Excepción:</strong> Si el cliente muestra interés inmediato, el sondeo profundo puede omitirse, pero se requiere confirmación mínima para prevenir errores.</p>
+                                    
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-agent">"Don Carlos, para entregarle el mejor plan, ¿actualmente cuántas personas usarán el WiFi en su casa al mismo tiempo?"</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl overflow-hidden hover:border-blue-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-blue-600 transition-colors">Aporta Valor y Escucha Activa</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-blue-600 text-xs bg-blue-50 px-2 py-1 rounded">7%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-blue-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">Generar preguntas que aporten información relevante (evitar interrogatorios o respuestas SÍ/NO). <br><strong>Escucha Activa:</strong> NO consultar información que el cliente ya indicó a menos que sea a modo de confirmación.</p>
+                                    
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-customer">"Llamo porque me cambié de casa y necesito instalar internet."</div>
+                                        <div class="bubble bubble-bad">"Entiendo. ¿Y la instalación sería para su casa o su empresa?" <span class="text-xs font-normal italic block mt-1">(Mala escucha, ya dijo casa).</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOQUE 3: Argumentación -->
+                    <div class="block-group bg-white rounded-3xl border border-slate-200 shadow-sm p-4">
+                        <div class="bg-slate-50 border border-slate-100 px-5 py-3 mb-4 flex justify-between items-center rounded-2xl">
+                            <h4 class="font-bold text-slate-800"><i class="fa-solid fa-3 text-emerald-400 mr-2"></i> Argumentación</h4>
+                            <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-lg text-xs">Peso: 14%</span>
+                        </div>
+                        
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-emerald-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-emerald-600 transition-colors">Ventajas y Beneficios</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-emerald-600 text-xs bg-emerald-50 px-2 py-1 rounded">4.6%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-emerald-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">Argumentar usando la info del cliente para potenciar la oferta. Traducir características técnicas al <em>"para qué sirve"</em> (beneficio real). <br><strong>Prohibido:</strong> Indicar que características generales (ej. WiFi 6) son exclusivas de Mundo.</p>
+                                    
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-bad">"El plan incluye router doble banda."</div>
+                                        <div class="bubble bubble-agent">"El plan incluye router doble banda, lo que le asegura que la señal llegará con fuerza tanto a su living como a su pieza."</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-emerald-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-emerald-600 transition-colors">Lenguaje Formal y Trato</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-emerald-600 text-xs bg-emerald-50 px-2 py-1 rounded">4.66%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-emerald-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <div class="bg-white border border-slate-200 rounded-xl p-4">
+                                        <ul class="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                                            <li>Evitar modismos coloquiales.</li>
+                                            <li>Uso permitido de "mi estimado": <strong>máximo 4 veces por llamada</strong>.</li>
+                                            <li><strong>Prohibido el uso de diminutivos</strong> ("un momentico", "un minutico", "aval").</li>
+                                            <li><strong>Prohibido tutear</strong> (salvo que el cliente lo pida). Debe ustear toda la llamada.</li>
+                                            <li>Agradecer siempre el tiempo en espera.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl overflow-hidden hover:border-emerald-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-emerald-600 transition-colors">Dominio de la Oferta</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-emerald-600 text-xs bg-emerald-50 px-2 py-1 rounded">4.66%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-emerald-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed">Entregar información técnica correcta y completa de las características del plan:</p>
+                                    <ul class="list-disc pl-5 mt-2 space-y-1 text-sm text-slate-600">
+                                        <li><strong>Móvil:</strong> Minutos y GB (Libres/controlados), mención de RRSS libres, valor y promo.</li>
+                                        <li><strong>Fijo:</strong> Velocidad simétrica, rango de canales, telefonía, valor real y en promo.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOQUE 4: Objeciones y Cierre -->
+                    <div class="block-group bg-white rounded-3xl border border-slate-200 shadow-sm p-4">
+                        <div class="bg-slate-50 border border-slate-100 px-5 py-3 mb-4 flex justify-between items-center rounded-2xl">
+                            <h4 class="font-bold text-slate-800"><i class="fa-solid fa-4 text-purple-400 mr-2"></i> Objeciones y Cierre</h4>
+                            <span class="bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded-lg text-xs">Peso: 22%</span>
+                        </div>
+                        
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-purple-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-purple-600 transition-colors">Entender la Objeción</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-purple-600 text-xs bg-purple-50 px-2 py-1 rounded">7%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-purple-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">Indagar motivos del rechazo y mostrar empatía respecto a dichos motivos. Si el cliente no indica por qué, indagar qué le hace falta para decidirse <strong>antes</strong> de contraargumentar.</p>
+                                    
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-agent">"Entiendo don Carlos. Solo por curiosidad, ¿qué es lo que más valora de su servicio actual para no desear cambiarlo?"</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-purple-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-purple-600 transition-colors">Contesta para Convencer</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-purple-600 text-xs bg-purple-50 px-2 py-1 rounded">7%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-purple-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">Responder a la objeción basado en los motivos que dio el cliente con el fin de convencerlo. Se considera positivo al menos un intento. <em>(Si el cliente muestra clara molestia o interrumpe, no se penaliza si no se logra contestar).</em></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-3 overflow-hidden hover:border-purple-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-purple-600 transition-colors">Cierre Oportuno</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-purple-600 text-xs bg-purple-50 px-2 py-1 rounded">3.99%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-purple-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <p class="text-sm text-slate-600 leading-relaxed mb-4">Lanzar el cierre cuando hay indicios de compra. <strong>Evitar preguntar: "¿Desea contratar?".</strong> Se debe usar un llamado a la acción.</p>
+                                    
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-bad">"Entonces, ¿lo quiere contratar sí o no?"</div>
+                                        <div class="bubble bubble-agent">"Excelente, para dejar ingresado su contrato de inmediato, solo necesito que me envíe una foto de su carnet por ambos lados..."</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item -->
+                        <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl overflow-hidden hover:border-purple-200">
+                            <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                <span class="font-bold text-slate-700 text-sm group-hover:text-purple-600 transition-colors">Info Relevante y Tipificación</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-purple-600 text-xs bg-purple-50 px-2 py-1 rounded">4%</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                </div>
+                            </button>
+                            <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                <div class="acc-inner p-5">
+                                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-book-open text-purple-400 mr-1"></i> Descriptor de Pauta</h5>
+                                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                                        <li><strong>Información:</strong> Indicar documentos necesarios, plazos (Instalación / 5 días móvil), proceso de activación, facturación y confirmación de dirección.</li>
+                                        <li><strong>Tipificación:</strong> Dejar registro en CRM y es <strong>OBLIGATORIO solicitar un segundo número de contacto.</strong></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BLOQUE PEC: ERRORES CRÍTICOS (No Venta) -->
+                <div class="mb-8 mt-16 flex flex-col md:flex-row md:items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-critical"></i> Errores Críticos (PEC)
+                        </h3>
+                        <p class="text-slate-600 text-sm">Estas acciones anulan o penalizan gravemente tu evaluación (Escala 0 al 100%).</p>
+                    </div>
+                    <span class="mt-4 md:mt-0 bg-red-100 text-red-700 font-bold px-4 py-2 rounded-xl text-sm border border-red-200 shadow-sm text-center inline-block">Penalización Total</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="no-venta-pec">
+                    
+                    <!-- PEC Item -->
+                    <div class="searchable-item block-group bg-red-50 p-1.5 rounded-3xl border border-red-200 hover:shadow-md transition shadow-sm">
+                        <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-5 focus:outline-none">
+                            <h5 class="font-bold text-red-900 text-[15px] flex items-center gap-3"><i class="fa-solid fa-user-xmark text-red-500 text-xl w-6"></i> Trato Inadecuado</h5>
+                            <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 icon-btn"></i>
+                        </button>
+                        <div class="acc-content border-t border-red-100 mx-5 mt-1">
+                            <div class="acc-inner pb-5 pt-4 text-sm text-red-800 leading-relaxed">
+                                <p>Comentarios inadecuados, groseros, irónicos, sarcásticos o soeces. Se penaliza discutir o faltar el respeto al usuario generando molestia. Atentar contra el prestigio de la compañía, compañeros o herramientas.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PEC Item -->
+                    <div class="searchable-item block-group bg-red-50 p-1.5 rounded-3xl border border-red-200 hover:shadow-md transition shadow-sm">
+                        <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-5 focus:outline-none">
+                            <h5 class="font-bold text-red-900 text-[15px] flex items-center gap-3"><i class="fa-solid fa-phone-slash text-red-500 text-xl w-6"></i> Abandono / Desatención</h5>
+                            <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 icon-btn"></i>
+                        </button>
+                        <div class="acc-content border-t border-red-100 mx-5 mt-1">
+                            <div class="acc-inner pb-5 pt-4 text-sm text-red-800 leading-relaxed">
+                                <p>Dejar en espera sin aviso o exceder 120 segundos. Dejar canal abierto escuchando conversaciones de terceros. Cortar sin despedida previa. Rendirse ante objeción abandonando la llamada sin contraargumentar.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PEC Item -->
+                    <div class="searchable-item block-group bg-red-50 p-1.5 rounded-3xl border border-red-200 hover:shadow-md transition shadow-sm">
+                        <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-5 focus:outline-none">
+                            <h5 class="font-bold text-red-900 text-[15px] flex items-center gap-3"><i class="fa-solid fa-chart-line text-red-500 text-xl w-6"></i> Desaprovechamiento Comercial</h5>
+                            <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 icon-btn"></i>
+                        </button>
+                        <div class="acc-content border-t border-red-100 mx-5 mt-1">
+                            <div class="acc-inner pb-5 pt-4 text-sm text-red-800 leading-relaxed">
+                                <p class="font-bold mb-2">¡Regla de Oro en Mundo!</p>
+                                <p>Si el cliente <strong>NO tiene factibilidad Técnica Fija</strong> (cargado, inhabilitado), o rechaza Mundo Fijo, <strong>DEBES OFRECER Mundo Móvil</strong> como alternativa. También penaliza revisar mal la factibilidad o no cumplir compromisos de llamado.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PEC Item -->
+                    <div class="searchable-item block-group bg-red-50 p-1.5 rounded-3xl border border-red-200 hover:shadow-md transition shadow-sm">
+                        <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-5 focus:outline-none">
+                            <h5 class="font-bold text-red-900 text-[15px] flex items-center gap-3"><i class="fa-solid fa-file-signature text-red-500 text-xl w-6"></i> Fraude / Argumento Falso</h5>
+                            <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 icon-btn"></i>
+                        </button>
+                        <div class="acc-content border-t border-red-100 mx-5 mt-1">
+                            <div class="acc-inner pb-5 pt-4 text-sm text-red-800 leading-relaxed">
+                                <p>Inducir a baja ("pruébelo y luego lo da de baja"). Inventar características no aprobadas. Indicar que una dirección está "Ocupada por otro cliente" sin generar la consulta previa de si él o alguien más contrató antes allí.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- =========================================================================
+                 VISTA 2: VENTA EFECTIVA (ESTRICTA)
+            ========================================================================== -->
+            <div id="view-venta" class="hidden fade-in max-w-7xl mx-auto">
+                
+                <div class="bg-gradient-to-tr from-slate-900 to-slate-800 rounded-3xl p-8 mb-10 text-white shadow-card relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-10 transform translate-x-10 -translate-y-10">
+                        <i class="fa-solid fa-shield-halved text-[180px]"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <span class="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block shadow-sm">Evaluación Estricta</span>
+                        <h2 class="text-3xl font-extrabold mb-3">Pauta: Cierre de Venta Efectiva</h2>
+                        <p class="text-slate-300 max-w-2xl text-sm leading-relaxed">
+                            Al lograr que el cliente acepte la oferta, la precisión operativa es obligatoria. <strong>Solo existen 3 ítems blandos evaluables (5%).</strong> Cualquier error de tipificación, información incompleta, mal ingreso al sistema o desaprovechamiento de venta cruzada, anulará tu venta en la pauta de calidad.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8" id="venta-container">
+                    
+                    <!-- LADO IZQUIERDO: ITEMS BLANDOS (5%) -->
+                    <div class="lg:col-span-5 space-y-6 block-group">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-feather text-soft"></i> Ítems PENC
+                            </h3>
+                            <span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-lg text-xs">Total PENC: 5%</span>
+                        </div>
+
+                        <div class="bg-white p-3 rounded-3xl shadow-sm border border-slate-200">
+                            
+                            <!-- ITEM Venta 1 -->
+                            <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-2 overflow-hidden hover:border-indigo-200">
+                                <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                    <span class="font-bold text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">1. Saludo Corporativo</span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-1 rounded">1.66%</span>
+                                        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                    </div>
+                                </button>
+                                <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                    <div class="acc-inner p-5 text-sm text-slate-600">
+                                        <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descriptor de Pauta</h5>
+                                        Presentarse con primer nombre y primer apellido en menos de 10 segundos al entrar/salir la llamada.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ITEM Venta 2 -->
+                            <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl mb-2 overflow-hidden hover:border-indigo-200">
+                                <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                    <span class="font-bold text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">2. Identifica la Marca</span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-1 rounded">1.66%</span>
+                                        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                    </div>
+                                </button>
+                                <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                    <div class="acc-inner p-5 text-sm text-slate-600">
+                                        <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descriptor de Pauta</h5>
+                                        Mencionar claramente que perteneces a "Ventas de Mundo" e identificar al cliente por su nombre al inicio de la interacción.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ITEM Venta 3 -->
+                            <div class="searchable-item acc-wrapper border border-slate-100 rounded-2xl overflow-hidden hover:border-indigo-200">
+                                <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-white focus:outline-none group">
+                                    <span class="font-bold text-slate-700 text-sm group-hover:text-indigo-600 transition-colors">3. Motivo de Llamada</span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-bold text-indigo-600 text-xs bg-indigo-50 px-2 py-1 rounded">1.66%</span>
+                                        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300 icon-btn"></i>
+                                    </div>
+                                </button>
+                                <div class="acc-content bg-slate-50 border-t border-slate-100">
+                                    <div class="acc-inner p-5 text-sm text-slate-600">
+                                        <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descriptor de Pauta</h5>
+                                        Entregar un motivo de contacto que permita capturar la atención de inmediato, demostrando seguridad y un tono dinámico.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- LADO DERECHO: ERRORES CRÍTICOS (PEC) -->
+                    <div class="lg:col-span-7 space-y-4 block-group">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-critical"></i> Criterios Críticos (PEC)
+                            </h3>
+                            <span class="bg-red-100 text-red-700 font-bold px-3 py-1 rounded-lg text-xs border border-red-200 shadow-sm">0 a 100%</span>
+                        </div>
+
+                        <div class="bg-white rounded-3xl border border-red-200 p-3 shadow-sm">
+                            
+                            <!-- PEC Venta 1 -->
+                            <div class="searchable-item acc-wrapper border border-red-100 rounded-2xl mb-2 overflow-hidden hover:border-red-300">
+                                <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-red-50 focus:outline-none">
+                                    <h4 class="font-bold text-red-900 text-[15px]"><i class="fa-solid fa-basket-shopping mr-2 text-red-500"></i> Desaprovechamiento (Cross-Selling)</h4>
+                                    <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 icon-btn"></i>
+                                </button>
+                                <div class="acc-content bg-white border-t border-red-100">
+                                    <div class="acc-inner p-5 text-sm text-slate-700 leading-relaxed">
+                                        <p>Durante la llamada de venta Fijo, <strong>es obligatorio ofrecer Mundo Móvil</strong>. </p>
+                                        <p class="mt-2 text-red-600 font-medium bg-red-50 p-3 rounded-lg border border-red-100"><i class="fa-solid fa-circle-exclamation mr-1"></i> "No aplica insistir para que contrate; debe presentarse como alternativa complementaria. El no ofrecerlo cuando existe la oportunidad penaliza la venta al 100%."</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PEC Venta 2 -->
+                            <div class="searchable-item acc-wrapper border border-red-100 rounded-2xl mb-2 overflow-hidden hover:border-red-300">
+                                <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-red-50 focus:outline-none">
+                                    <h4 class="font-bold text-red-900 text-[15px]"><i class="fa-solid fa-desktop mr-2 text-red-500"></i> Tipificación Crítica y Datos</h4>
+                                    <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 icon-btn"></i>
+                                </button>
+                                <div class="acc-content bg-white border-t border-red-100">
+                                    <div class="acc-inner p-5 text-sm text-slate-700">
+                                        <p>Dejar el registro correcto en CRM del cierre de venta. <strong>Es OBLIGATORIO solicitar un segundo número de contacto.</strong> (Si el cliente se niega a darlo, se debe dejar la constancia escrita en las observaciones de CRM para evitar la penalización).</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PEC Venta 3 -->
+                            <div class="searchable-item acc-wrapper border border-red-100 rounded-2xl mb-2 overflow-hidden hover:border-red-300">
+                                <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-red-50 focus:outline-none">
+                                    <h4 class="font-bold text-red-900 text-[15px]"><i class="fa-solid fa-box-open mr-2 text-red-500"></i> Dominio de Oferta y Cierre</h4>
+                                    <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 icon-btn"></i>
+                                </button>
+                                <div class="acc-content bg-white border-t border-red-100">
+                                    <div class="acc-inner p-5 text-sm text-slate-700 space-y-3">
+                                        <div>
+                                            <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Dominio de Oferta</h5>
+                                            <p>Entregar características correctas, velocidades asimétricas/simétricas exactas, valores reales y duración de la promoción sin esconder letras chicas.</p>
+                                        </div>
+                                        <hr class="border-slate-100">
+                                        <div>
+                                            <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Cierre e Info Relevante</h5>
+                                            <p>Confirmar documentos necesarios, plazo instalación Fijo, entrega Móvil (5 días), proceso de facturación y calle/coordenadas exactas de entrega.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PEC Venta 4 -->
+                            <div class="searchable-item acc-wrapper border border-red-100 rounded-2xl mb-2 overflow-hidden hover:border-red-300">
+                                <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-4 bg-red-50 focus:outline-none">
+                                    <h4 class="font-bold text-red-900 text-[15px]"><i class="fa-solid fa-file-signature mr-2 text-red-500"></i> Ingreso Correcto al Sistema</h4>
+                                    <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 icon-btn"></i>
+                                </button>
+                                <div class="acc-content bg-white border-t border-red-100">
+                                    <div class="acc-inner p-5 text-sm text-slate-700">
+                                        <ul class="list-disc pl-5 space-y-2 font-medium text-red-800">
+                                            <li>Dirección y número portado correctos.</li>
+                                            <li>Documentación validada sin bloqueos.</li>
+                                            <li>El plan ingresado en CRM debe ser <strong>exactamente el mismo</strong> que se vendió verbalmente en el audio.</li>
+                                            <li class="bg-red-50 p-2 rounded border border-red-100"><strong class="text-red-900">Lectura completa y correcta del Script de Contrato Verbal.</strong> Leerlo mal, rápido inentendible o a medias anula la gestión completa.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PEC Venta 5 (Anuladores) -->
+                            <div class="searchable-item acc-wrapper border border-red-200 rounded-2xl overflow-hidden shadow-sm">
+                                <button onclick="toggleRow(this)" class="w-full flex justify-between items-center p-5 bg-red-100 focus:outline-none">
+                                    <h4 class="font-bold text-red-900 text-[15px]"><i class="fa-solid fa-gavel mr-2 text-red-600"></i> Fraudes y Faltas Éticas</h4>
+                                    <i class="fa-solid fa-chevron-down text-red-500 transition-transform duration-300 icon-btn"></i>
+                                </button>
+                                <div class="acc-content bg-white border-t border-red-200">
+                                    <div class="acc-inner p-5 text-sm text-slate-700">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                                <h6 class="font-bold text-red-800 mb-1">Inducir Baja</h6>
+                                                <p class="text-xs text-slate-600">Prohibido vender usando "Pruébelo y luego lo da de baja". Si preguntan, responde "Es sin permanencia".</p>
+                                            </div>
+                                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                                <h6 class="font-bold text-red-800 mb-1">Falta de Respeto</h6>
+                                                <p class="text-xs text-slate-600">Groserías, burlas, ironía o cualquier discusión con el cliente invalida todo el esfuerzo de venta.</p>
+                                            </div>
+                                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 md:col-span-2">
+                                                <h6 class="font-bold text-red-800 mb-1">Fraude Operativo</h6>
+                                                <p class="text-xs text-slate-600">Inventar cobertura falsa, realizar venta a terceros sin consentimiento (suplantación), o vender en domicilios marcados como "Ocupados" sin realizar la validación correspondiente de antiguo inquilino.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================================================
+                 VISTA 3: CASUÍSTICAS Y EJEMPLOS (LABORATORIO)
+            ========================================================================== -->
+            <div id="view-casos" class="hidden fade-in max-w-7xl mx-auto">
+                
+                <div class="mb-10 text-center">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-3">Laboratorio de Entrenamiento</h2>
+                    <p class="text-slate-600 max-w-2xl mx-auto text-sm">Aprende con simulaciones de escenarios reales. Descubre cómo resolver objeciones y potenciar tus cierres de venta.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" id="casos-container">
+                    
+                    <!-- CASO 1: NO VENTA -->
+                    <div class="searchable-item block-group bg-white rounded-3xl shadow-card border border-slate-200 overflow-hidden flex flex-col hover:border-indigo-300 transition-colors">
+                        <div class="h-48 w-full img-placeholder" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%25%22 height=%22100%25%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23e2e8f0%22/><text x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2216%22 font-weight=%22bold%22 fill=%22%2364748b%22 text-anchor=%22middle%22 dy=%22.3em%22></text></svg>');">
+                        </div>
+                        <div class="p-6 lg:p-8 flex-1 flex flex-col">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Módulo No Venta</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Cliente sin Factibilidad (Hogar)</h3>
+                            <p class="text-sm text-slate-600 mb-6 flex-1">El cliente quiere internet fibra, pero el sistema indica que la red no llega o está inhabilitada. ¿Cómo evitar el Error Crítico de 'Desaprovechamiento Comercial'?</p>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-[11px] font-bold text-red-600 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-sm"></i> Lo que NO debes hacer</h4>
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-customer">"Pucha, de verdad necesitaba el internet para mi casa."</div>
+                                        <div class="bubble bubble-bad">
+                                            "Lamentablemente la zona no tiene cobertura don Carlos. Que tenga buen día." <br>
+                                            <span class="text-xs text-red-700 italic mt-2 block font-normal border-t border-red-200 pt-1">Resultado: Penalizado con Desaprovechamiento Comercial y Abandono (0%).</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-sm"></i> Lo correcto (Calidad 100%)</h4>
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-customer">"Pucha, de verdad necesitaba el internet para mi casa."</div>
+                                        <div class="bubble bubble-agent">
+                                            "Comprendo don Carlos. Si bien por ahora no tenemos cableado Fijo en su calle, <strong>para que no se quede sin conexión, le ofrezco nuestra línea de Mundo Móvil</strong> con GB libres para compartir internet. ¿Le gustaría escuchar el plan?"
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CASO 2: VENTA -->
+                    <div class="searchable-item block-group bg-white rounded-3xl shadow-card border border-slate-200 overflow-hidden flex flex-col hover:border-emerald-300 transition-colors">
+                        <div class="h-48 w-full img-placeholder" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%25%22 height=%22100%25%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23e2e8f0%22/><text x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2216%22 font-weight=%22bold%22 fill=%22%2364748b%22 text-anchor=%22middle%22 dy=%22.3em%22></text></svg>'); border-bottom-color: #10b981;">
+                        </div>
+                        <div class="p-6 lg:p-8 flex-1 flex flex-col">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Módulo Venta</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Cierre Exitoso + Protocolo Completo</h3>
+                            <p class="text-sm text-slate-600 mb-6 flex-1">El cliente acaba de aceptar el plan de Fibra Óptica. El error común es relajarse y cerrar la llamada rápido sin cumplir las exigencias críticas (Cross-selling y datos base).</p>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-[11px] font-bold text-red-600 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-sm"></i> Lo que NO debes hacer</h4>
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-customer">"Sí, me parece súper bien el plan, lo quiero contratar."</div>
+                                        <div class="bubble bubble-bad">
+                                            "Perfecto, envíeme la foto de su carnet para gestionar y listo. Gracias." <br>
+                                            <span class="text-xs text-red-700 italic mt-2 block font-normal border-t border-red-200 pt-1">Resultado: Venta Anulada (Faltó 2do número, faltó Info Relevante y NO ofreció Móvil).</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-sm"></i> Lo correcto (Calidad 100%)</h4>
+                                    <div class="chat-container">
+                                        <div class="bubble bubble-customer">"Sí, me parece súper bien el plan, lo quiero contratar."</div>
+                                        <div class="bubble bubble-agent">
+                                            "¡Excelente decisión! Para ingresar el contrato necesito su carnet. La instalación queda agendada. Por favor bríndeme un <strong>segundo número de contacto</strong>. Y aprovecho de comentarle, <strong>¿le gustaría sumar un plan móvil con descuento?</strong>"
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Core Scripts -->
+    <script>
+        // === 1. Lógica de Pestañas (Tabs) ===
+        function switchTab(tabId) {
+            const tabs = ['no-venta', 'venta', 'casos'];
+            const titles = {
+                'no-venta': 'Pauta: Llamada de Servicio (No Venta)',
+                'venta': 'Pauta: Cierre de Venta Efectiva',
+                'casos': 'Laboratorio & Casos (Entrenamiento)'
+            };
+
+            // Update Title
+            document.getElementById('header-title').innerText = titles[tabId];
+
+            tabs.forEach(tab => {
+                const btn = document.getElementById('nav-' + tab);
+                const view = document.getElementById('view-' + tab);
+                
+                if (tab === tabId) {
+                    // Activate Button
+                    if(tab === 'no-venta' || tab === 'venta') {
+                        btn.classList.add('bg-mundo-50', 'text-mundo-700', 'shadow-sm', 'font-semibold', 'border-mundo-100');
+                        btn.classList.remove('text-slate-500', 'hover:bg-slate-50', 'hover:text-slate-700', 'font-medium', 'border-transparent');
+                    } else {
+                        // Special style for lab
+                        btn.classList.add('bg-emerald-50', 'text-emerald-700', 'shadow-sm', 'font-semibold', 'border-emerald-100');
+                        btn.classList.remove('text-slate-500', 'hover:bg-emerald-50', 'hover:text-emerald-700', 'font-medium', 'border-transparent');
+                    }
+                    
+                    // Show View with Animation
+                    view.classList.remove('hidden');
+                    view.classList.remove('fade-in');
+                    void view.offsetHeight; // Force reflow
+                    view.classList.add('fade-in');
+                } else {
+                    // Deactivate Button
+                    btn.className = btn.className.replace(/(bg-\w+-50|text-\w+-700|shadow-sm|font-semibold|border-\w+-100)/g, '');
+                    btn.classList.add('text-slate-500', 'font-medium', 'border-transparent');
+                    if(tab === 'casos') btn.classList.add('hover:bg-emerald-50', 'hover:text-emerald-700');
+                    else btn.classList.add('hover:bg-slate-50', 'hover:text-slate-700');
+                    
+                    // Hide View
+                    view.classList.add('hidden');
+                    view.classList.remove('fade-in');
+                }
+            });
+
+            // Reset search when switching tabs
+            document.getElementById('searchInput').value = '';
+            filterItems();
+            
+            // Scroll to top
+            document.getElementById('main-scroll-area').scrollTop = 0;
+        }
+
+        // === 2. Lógica de Acordeones Interactivos ===
+        function toggleRow(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('.icon-btn');
+            
+            if (content.classList.contains('open')) {
+                // Close
+                content.classList.remove('open');
+                icon.classList.remove('rotate-180');
+                btn.classList.remove('bg-slate-50', 'bg-red-50'); 
+            } else {
+                // Open
+                content.classList.add('open');
+                icon.classList.add('rotate-180');
+                
+                // Active BG color
+                if(btn.parentElement.classList.contains('border-red-100') || btn.parentElement.classList.contains('border-red-200')) {
+                    btn.classList.add('bg-red-50');
+                } else {
+                    btn.classList.add('bg-slate-50');
+                }
+            }
+        }
+
+        // === 3. Lógica del Buscador en Tiempo Real ===
+        function filterItems() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            
+            // Determinar qué vista está activa
+            let activeView = document.querySelector('.fade-in.block');
+            if(!activeView) return;
+
+            // Conseguir todos los items buscables en esa vista
+            const items = activeView.querySelectorAll('.searchable-item');
+            
+            items.forEach(item => {
+                const text = item.textContent || item.innerText;
+                if (text.toLowerCase().indexOf(filter) > -1) {
+                    item.style.display = "";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+
+            // Ocultar cabeceras de bloques si todos sus hijos están ocultos (Opcional visual)
+            const blocks = activeView.querySelectorAll('.block-group');
+            blocks.forEach(block => {
+                const searchableChildren = Array.from(block.querySelectorAll('.searchable-item'));
+                if(searchableChildren.length > 0) {
+                    const allHidden = searchableChildren.every(child => child.style.display === "none");
+                    if (allHidden) {
+                        block.style.display = "none";
+                    } else {
+                        block.style.display = "";
+                    }
+                }
+            });
+        }
+
+        // Init App
+        window.onload = function() {
+            switchTab('no-venta');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de Tipificación Televentas Mundo</title>
+    <style>
+        /* ================= VARIABLES Y PALETA DE COLORES ================= */
+        :root {
+            --bg-body: #f4f7fb;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #4f46e5;
+            
+            /* Colores Categorías (Pasteles modernos) */
+            --cat-efectivo: #10b981;
+            --cat-efectivo-bg: #d1fae5;
+            
+            --cat-noefectivo: #ef4444;
+            --cat-noefectivo-bg: #fee2e2;
+            
+            --cat-nocontacto: #f59e0b;
+            --cat-nocontacto-bg: #fef3c7;
+            
+            --cat-empresa: #8b5cf6;
+            --cat-empresa-bg: #ede9fe;
+            
+            --cat-cobertura: #f97316;
+            --cat-cobertura-bg: #ffedd5;
+            
+            --cat-transferencia: #0ea5e9;
+            --cat-transferencia-bg: #e0f2fe;
+
+            /* Etiquetas Neto */
+            --neto-si: #059669;
+            --neto-no: #dc2626;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ================= BARRA SUPERIOR (TOP NAV) ================= */
+        .top-nav {
+            background-color: var(--white);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-header {
+            width: 100%;
+            padding: 15px 40px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            box-sizing: border-box;
+        }
+
+        .nav-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-filters {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            overflow-x: auto;
+            max-width: 1200px;
+            width: 100%;
+            box-sizing: border-box;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: 2px solid transparent;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        /* ================= HERO & BUSCADOR ================= */
+        .hero {
+            padding: 40px 20px;
+            text-align: center;
+            background: linear-gradient(180deg, var(--white) 0%, var(--bg-body) 100%);
+        }
+
+        .search-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 25px;
+            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* ================= CUADRÍCULA DE TARJETAS ================= */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px 60px 40px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e2e8f0;
+            animation: fadeIn 0.4s ease-out;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
+
+        /* ================= ANIMACIONES CSS PURAS (ICONOS) ================= */
+        .card-animation-box {
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efectivo: Escudo / Check animado */
+        .anim-efectivo .circle {
+            width: 60px; height: 60px;
+            background: var(--cat-efectivo);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            animation: pulse-green 2s infinite;
+        }
+        .anim-efectivo .circle::after {
+            content: "✔"; color: white; font-size: 30px;
+            animation: scale-up 0.5s ease-out;
+        }
+
+        /* No Efectivo: Teléfono cortando / X vibrando */
+        .anim-noefectivo .cross {
+            width: 60px; height: 60px;
+            background: var(--cat-noefectivo);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            animation: shake 2.5s infinite;
+        }
+        .anim-noefectivo .cross::after {
+            content: "✖"; color: white; font-size: 30px;
+        }
+
+        /* No Contacto: Teléfono sonando (Ondas) */
+        .anim-nocontacto .phone-ring {
+            width: 40px; height: 60px;
+            background: var(--cat-nocontacto);
+            border-radius: 8px;
+            position: relative;
+            animation: vibrate 0.3s infinite alternate;
+        }
+        .anim-nocontacto .wave {
+            position: absolute;
+            width: 80px; height: 80px;
+            border: 3px solid var(--cat-nocontacto);
+            border-radius: 50%;
+            opacity: 0;
+            animation: radar 1.5s infinite linear;
+        }
+
+        /* Empresa: Edificio con luces */
+        .anim-empresa .building {
+            width: 60px; height: 80px;
+            background: var(--cat-empresa);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .anim-empresa .window {
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            animation: blink 3s infinite alternate;
+        }
+
+        /* Cobertura: Radar / Señal de mapa */
+        .anim-cobertura .pin {
+            width: 30px; height: 30px;
+            background: var(--cat-cobertura);
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            animation: bounce 1s infinite alternate;
+        }
+
+        /* Transferencia: Flechas rotando */
+        .anim-transferencia .arrows {
+            width: 50px; height: 50px;
+            border: 5px solid transparent;
+            border-top-color: var(--cat-transferencia);
+            border-bottom-color: var(--cat-transferencia);
+            border-radius: 50%;
+            animation: spin 2s infinite linear;
+        }
+
+        /* Keyframes de Animaciones */
+        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); } 70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        @keyframes scale-up { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-4px) rotate(-3deg); } 20%, 40%, 60%, 80% { transform: translateX(4px) rotate(3deg); } }
+        @keyframes vibrate { from { transform: translateY(-2px); } to { transform: translateY(2px); } }
+        @keyframes radar { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        @keyframes blink { 0%, 40% { background: rgba(255,255,255,0.3); } 50%, 100% { background: #fff; box-shadow: 0 0 5px #fff; } }
+        @keyframes bounce { from { transform: rotate(-45deg) translate(0, 0); } to { transform: rotate(-45deg) translate(10px, -10px); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ================= CONTENIDO DE TARJETA ================= */
+        .card-body {
+            padding: 20px 25px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-badges {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .badge-cat {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Etiquetas de Tráfico Neto basadas en el Excel */
+        .badge-neto {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 0.5px;
+        }
+        .badge-neto.si { background-color: var(--neto-si); }
+        .badge-neto.no { background-color: var(--neto-no); }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            font-size: 17px;
+            color: var(--text-main);
+            font-weight: 800;
+        }
+
+        .card p.desc {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .ejemplo-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: auto;
+        }
+
+        .ejemplo-box span {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .ejemplo-box p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        /* Asignación de colores por categoría a las cajas animadas */
+        .theme-efectivo .card-animation-box { background: var(--cat-efectivo-bg); }
+        .theme-efectivo .badge-cat { background: var(--cat-efectivo-bg); color: var(--cat-efectivo); }
+        
+        .theme-noefectivo .card-animation-box { background: var(--cat-noefectivo-bg); }
+        .theme-noefectivo .badge-cat { background: var(--cat-noefectivo-bg); color: var(--cat-noefectivo); }
+        
+        .theme-nocontacto .card-animation-box { background: var(--cat-nocontacto-bg); }
+        .theme-nocontacto .badge-cat { background: var(--cat-nocontacto-bg); color: var(--cat-nocontacto); }
+        
+        .theme-empresa .card-animation-box { background: var(--cat-empresa-bg); }
+        .theme-empresa .badge-cat { background: var(--cat-empresa-bg); color: var(--cat-empresa); }
+        
+        .theme-cobertura .card-animation-box { background: var(--cat-cobertura-bg); }
+        .theme-cobertura .badge-cat { background: var(--cat-cobertura-bg); color: var(--cat-cobertura); }
+        
+        .theme-transferencia .card-animation-box { background: var(--cat-transferencia-bg); }
+        .theme-transferencia .badge-cat { background: var(--cat-transferencia-bg); color: var(--cat-transferencia); }
+
+    </style>
+</head>
+<body>
+
+    <!-- BARRA DE OPCIONES SUPERIOR FIJA -->
+    <nav class="top-nav">
+        <div class="nav-header">
+            <h1>Matriz de Tipificación Televentas Mundo</h1>
+        </div>
+        <div class="nav-filters">
+            <button class="filter-btn active" data-category="Todos">Mostrar Todos</button>
+            <button class="filter-btn" data-category="No Contacto">No Contacto</button>
+            <button class="filter-btn" data-category="Cliente Efectivo">Efectivo</button>
+            <button class="filter-btn" data-category="Cliente No Efectivo">No Efectivo</button>
+            <button class="filter-btn" data-category="Empresa">Empresa</button>
+            <button class="filter-btn" data-category="Cobertura">Cobertura</button>
+            <button class="filter-btn" data-category="Transferencia">Transferencia</button>
+        </div>
+    </nav>
+
+    <!-- ÁREA DE BÚSQUEDA -->
+    <section class="hero">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar tipificación, problema o palabra clave...">
+        </div>
+    </section>
+
+    <!-- TARJETAS -->
+    <main class="main-container">
+        <div class="grid" id="cardContainer">
+            <!-- Renderizado dinámico -->
+        </div>
+    </main>
+
+    <script>
+        // Info de clases para colores e inyección de HTML para animaciones CSS
+        const catSettings = {
+            "Cliente Efectivo": { class: "theme-efectivo", animHTML: `<div class="anim-efectivo"><div class="circle"></div></div>` },
+            "Cliente No Efectivo": { class: "theme-noefectivo", animHTML: `<div class="anim-noefectivo"><div class="cross"></div></div>` },
+            "No Contacto": { class: "theme-nocontacto", animHTML: `<div class="anim-nocontacto"><div class="wave"></div><div class="phone-ring"></div></div>` },
+            "Empresa": { class: "theme-empresa", animHTML: `<div class="anim-empresa"><div class="building"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div></div>` },
+            "Cobertura": { class: "theme-cobertura", animHTML: `<div class="anim-cobertura"><div class="pin"></div></div>` },
+            "Transferencia": { class: "theme-transferencia", animHTML: `<div class="anim-transferencia"><div class="arrows"></div></div>` }
+        };
+
+        // Base de Datos consolidada (PDF + Excel para Tráfico Neto)
+        const tipificaciones = [
+            // NO CONTACTO
+            { titulo: "NO CONTESTA", categoria: "No Contacto", neto: "NO", desc: "No responde a la llamada, se escucha tono de llamada. Se intenta en diferentes franjas horarias.", ejemplo: "Llamas a las 10 AM, suena hasta cortar. Vuelves a intentar a las 4 PM." },
+            { titulo: "BUSY (OCUPADO)", categoria: "No Contacto", neto: "NO", desc: "Al realizar la marcación se escucha tono de ocupado o línea congestionada.", ejemplo: "Escuchas el clásico tono rápido de 'pi-pi-pi' indicando que la línea está en uso." },
+            { titulo: "BUZÓN DE VOZ", categoria: "No Contacto", neto: "NO", desc: "Teléfono apagado, remite directamente a la casilla de mensajes de voz del operador.", ejemplo: "Salta directamente el mensaje: 'El número marcado se encuentra apagado'." },
+            { titulo: "NO PITCH NO PRICE", categoria: "No Contacto", neto: "NO", desc: "Llamada 'muda'. Se utiliza cuando al ingresar la llamada no hay respuesta por parte del cliente.", ejemplo: "Contestan, pero el cliente no habla. Se escucha silencio y no alcanzas a saludar." },
+            
+            // EFECTIVO
+            { titulo: "SALE MADE", categoria: "Cliente Efectivo", neto: "SÍ", desc: "Cliente potencial, venta en borrador que debe pasar por aseguramiento y firma del BackOffice.", ejemplo: "Tomas los datos del cliente, pero falta que validación firme el contrato internamente." },
+            { titulo: "VENTA", categoria: "Cliente Efectivo", neto: "SÍ", desc: "Se concretó la venta mediante link de biometría. No requiere confirmación de BackOffice.", ejemplo: "El cliente acepta, se toma la foto (biometría) y la venta queda 100% cerrada." },
+            { titulo: "POTENCIAL VOLVER A LLAMAR", categoria: "Cliente Efectivo", neto: "SÍ", desc: "El cliente solicita que lo llamen nuevamente o la llamada se cae durante la conversación.", ejemplo: "El cliente te dice: 'Me interesa mucho, pero voy manejando. Llámame en 30 min'." },
+            
+            // NO EFECTIVO
+            { titulo: "DESCONFÍA DE LA LLAMADA", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "Cliente no cree que lo estemos llamando de Mundo y no acepta información. Número Equivocado.", ejemplo: "'¿Cómo sé que son de Mundo? No voy a dar mis datos por teléfono'." },
+            { titulo: "OFERTA POCO ATRACTIVA", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "Inconformidad con el plan. Su compañía actual tiene un valor más económico.", ejemplo: "'Actualmente pago $8.000 por la misma cantidad de gigas, no me conviene'." },
+            { titulo: "PLAN ACTUAL CON MEJOR BENEFICIO", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "Su compañía le ofrece mejores beneficios o busca servicios que no tenemos (5G, SIM Virtual, roaming).", ejemplo: "'El precio está bien, pero viajo mucho y necesito roaming internacional'." },
+            { titulo: "MENOR DE EDAD", categoria: "Cliente No Efectivo", neto: "NO", desc: "Responde un menor de edad. Se debe solicitar hablar con un adulto o volver a llamar.", ejemplo: "Contesta un niño: 'Mi mamá dejó el teléfono en la mesa y salió a comprar'." },
+            { titulo: "PROBLEMAS DE FACTURACIÓN", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "Cliente posee morosidad o inconvenientes de factura y no se le puede activar ningún servicio.", ejemplo: "Al ingresar su RUT, el sistema arroja una alerta roja de deuda pendiente." },
+            { titulo: "CORTA LLAMADA", categoria: "Cliente No Efectivo", neto: "NO", desc: "Ingresa la llamada, realizas la presentación inicial y el cliente corta abruptamente (menos de 20 seg).", ejemplo: "Dices: 'Hola, me comunico de Mundo...' y escuchas el tono de colgado de inmediato." },
+            { titulo: "DEAD AIR", categoria: "Cliente No Efectivo", neto: "NO", desc: "Se utiliza exclusivamente para aquellos casos en donde el cliente que se llama falleció.", ejemplo: "Un familiar contesta e informa que el titular de la línea falleció." },
+            { titulo: "EXIGE NO SER VUELTO A LLAMAR", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "Cliente solicita no recibir más llamadas de Mundo. Cliente molesto por recibir llamadas constantes.", ejemplo: "El cliente responde enojado: '¡Por favor borren mi número de su base de datos!'." },
+            { titulo: "MÓVIL QUIERE PORTABILIDAD", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "Cliente con problemas para portarse (tiene deuda con su compañía actual, no es titular, o inactivo).", ejemplo: "El sistema de su compañía actual rechaza la portabilidad porque el equipo está bloqueado." },
+            { titulo: "MÓVIL SE PORTÓ A OTRA CÍA", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "No cumple con el plazo que se solicita para poder realizar portabilidad (recién se cambió).", ejemplo: "El cliente indica: 'Me acabo de cambiar a otra compañía hace 2 días'." },
+            { titulo: "MÓVIL MALA COBERTURA", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "No acepta oferta móvil por NO tener buena señal de Mundo en su sector habitual.", ejemplo: "'No gracias, en esta zona rural la señal de Mundo se cae a cada rato'." },
+            { titulo: "MÓVIL QUIERE EQUIPO", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "No acepta contratar debido a que quiere adquirir un equipo smartphone asociado al plan.", ejemplo: "'Solo planes no me sirve, busco una compañía que me dé un equipo a cuotas'." },
+            { titulo: "MOLESTO CON LA COMPAÑÍA", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "No acepta contratar por mala experiencia previa con Mundo, se encuentra enojado con la empresa.", ejemplo: "'¡No quiero saber de ustedes! Tuve mal servicio el año pasado'." },
+            { titulo: "NOT INTERESTED", categoria: "Cliente No Efectivo", neto: "SÍ", desc: "Cliente no interesado en Oferta entregada y no da explicaciones o motivos.", ejemplo: "El cliente simplemente dice 'No me interesa, gracias' y procede a despedirse." },
+            
+            // EMPRESA
+            { titulo: "CALL TRANSFERED COMPANY", categoria: "Empresa", neto: "NO", desc: "El cliente es una Pyme o Empresa y se debe derivar al área correspondiente (600 9100 200).", ejemplo: "'Necesito internet para mi restaurante, a nombre de la empresa y con factura'." },
+
+            // COBERTURA
+            { titulo: "SIN FACTIBILIDAD, FUERA DE MUNDO", categoria: "Cobertura", neto: "SÍ", desc: "Domicilio sin factibilidad técnica o se encuentra fuera de la zona de cobertura.", ejemplo: "Revisas el mapa de cobertura y el poste cableado de Mundo más cercano está a 5 km." },
+            { titulo: "SIN FACTIBILIDAD CARGADO", categoria: "Cobertura", neto: "SÍ", desc: "Domicilio cargado en sistema, prontamente se habilitará el servicio en la zona.", ejemplo: "El sistema indica que en 2 semanas habilitarán los nodos de fibra óptica en su pasaje." },
+            { titulo: "SIN FACTIBILIDAD OCUPADO", categoria: "Cobertura", neto: "SÍ", desc: "Domicilio ocupado en sistema por otro MCT (ej: inquilino anterior). NUNCA decir 'ocupado'.", ejemplo: "El arrendatario anterior dejó un contrato activo con deuda en ese domicilio." },
+
+            // TRANSFERENCIA
+            { titulo: "TRANSFERENCIA COMERCIAL", categoria: "Transferencia", neto: "NO", desc: "Cliente contesta para resolver dudas administrativas (boletas, cambio de plan, instalaciones).", ejemplo: "'Ya soy cliente, pero la boleta de este mes me llegó muy alta'. Transfieres el llamado." },
+            { titulo: "TRANSFERENCIA TÉCNICA", categoria: "Transferencia", neto: "NO", desc: "El cliente actual aprovecha tu llamada para reportar una avería o solicitar visita técnica.", ejemplo: "'Ya soy cliente, pero el módem está en rojo desde ayer'. Lo transfieres a técnica." }
+        ];
+
+        const container = document.getElementById('cardContainer');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        let currentCat = 'Todos';
+
+        function renderCards(data) {
+            container.innerHTML = '';
+            
+            if (data.length === 0) {
+                container.innerHTML = '<div class="no-results">No se encontraron resultados para tu búsqueda.</div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const settings = catSettings[item.categoria];
+                const netoClass = item.neto === "SÍ" ? "si" : "no";
+
+                const card = document.createElement('div');
+                card.className = `card ${settings.class}`;
+                
+                card.innerHTML = `
+                    <div class="card-animation-box">
+                        ${settings.animHTML}
+                    </div>
+                    <div class="card-body">
+                        <div class="card-badges">
+                            <span class="badge-cat">${item.categoria}</span>
+                            <span class="badge-neto ${netoClass}">Tráfico Neto: ${item.neto}</span>
+                        </div>
+                        <h3>${item.titulo}</h3>
+                        <p class="desc">${item.desc}</p>
+                        <div class="ejemplo-box">
+                            <span>💡 Caso Práctico</span>
+                            <p>"${item.ejemplo}"</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterData() {
+            const query = searchInput.value.toLowerCase().trim();
+
+            const filtered = tipificaciones.filter(item => {
+                const isCat = currentCat === 'Todos' || item.categoria === currentCat;
+                const isMatch = item.titulo.toLowerCase().includes(query) || 
+                                item.desc.toLowerCase().includes(query) ||
+                                item.ejemplo.toLowerCase().includes(query);
+                return isCat && isMatch;
+            });
+
+            renderCards(filtered);
+        }
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentCat = e.target.getAttribute('data-category');
+                filterData();
+            });
+        });
+
+        searchInput.addEventListener('input', filterData);
+
+        // Inicializar
+        renderCards(tipificaciones);
+    </script>
+</body>
+</html>
